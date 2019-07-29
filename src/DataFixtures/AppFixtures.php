@@ -14,17 +14,20 @@ class AppFixtures extends Fixture
          [
              "username" => "John",
              "password" => "john123",
-             "phone" => "001"
+             "phone" => "001",
+             "roles" => [User::ROLE_USER]
          ],
          [
              "username" => "Alex",
              "password" => "alex123",
-             "phone" => "002"
+             "phone" => "002",
+             "roles" => [User::ROLE_USER]
          ],
          [
              "username" => "Stacy",
              "password" => "stacy123",
-             "phone" => "003"
+             "phone" => "003",
+             "roles" => [User::ROLE_USER]
          ]
     ];
 
@@ -63,6 +66,7 @@ class AppFixtures extends Fixture
             $user->setUsername($userData["username"]);
             $user->setPassword($userData["password"]);
             $user->setPhone($userData["phone"]);
+            $user->setRoles($userData["roles"]);
 
             $this->addReference($userData["username"], $user);
 

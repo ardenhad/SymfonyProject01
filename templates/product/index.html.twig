@@ -4,7 +4,7 @@
     {% if products|length > 0 %}
         <h4>Available Products</h4>
         {% for product in products %}
-            {{ include("product/product-short.html.twig", {"product": product}) }}
+                {{ include("product/product-short.html.twig", {"product": product}) }}
         {% endfor %}
     {% else %}
         It looks like there are no products available right now!
