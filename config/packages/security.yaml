@@ -1,14 +1,29 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+
     providers:
-        in_memory: { memory: ~ }
+        users:
+            entity:
+                # the class of the entity that represents users
+                class: 'App\Entity\User'
+                # the property to query by - e.g. username, email, etc
+                property: 'username'
+                # optional: if you're using multiple Doctrine entity
+                # managers, this option defines which one to use
+                # manager_name: 'customer'
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             anonymous: true
+            pattern: ^/
 
+            form_login:
+                check_path: security_login
+                login_path: security_login
+                csrf_token_generator: security.csrf.token_manager
+                default_target_path: product_index
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 

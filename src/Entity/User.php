@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements UserInterface
+class User implements UserInterface, \Serializable
 {
     const ROLE_USER = "ROLE_USER";
     const ADMIN_USER = "ROLE_ADMIN";
@@ -24,7 +24,7 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      */
     private $username;
 
