@@ -7,7 +7,7 @@
         <ul style="padding-left:0px">
             {% for product in products %}
                 <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
-                    {{ include("product/product.html.twig", {"product": product , "isShortDesc": true}) }}
+                    {{ include("product/product-short.html.twig", {"product": product}) }}
                 </li>
                 <hr>
             {% endfor %}

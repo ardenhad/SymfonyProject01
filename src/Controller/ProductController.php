@@ -121,7 +121,7 @@ class ProductController extends AbstractController
      * @Security(expression="is_granted('ROLE_USER')")
      */
     public function displayOwnerProducts(User $owner) {
-        return new Response ($this->renderView("product/user-products.html.twig", [
+        return new Response($this->renderView("product/user-products.html.twig", [
            "products" => $owner->getProducts(),
             "user" => $owner
         ]));
