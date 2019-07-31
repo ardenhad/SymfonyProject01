@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface, \Serializable
 {
     const ROLE_USER = "ROLE_USER";
-    const ADMIN_USER = "ROLE_ADMIN";
 
     /**
      * @ORM\Id()

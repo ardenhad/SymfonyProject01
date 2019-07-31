@@ -1,0 +1,24 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    {% if products|length > 0 %}
+        <h4>Available Products by {{ user.username }}</h4>
+        <hr>
+        <ul style="padding-left:0px">
+            {% for product in products %}
+                <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
+                    {{ include("product/product.html.twig", {"product": product , "isShortDesc": true}) }}
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        {% if user == app.user %}
+            It looks like you have no products available for sale.
+            <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"
+               class="btn btn-light">Enlist a Product</a>
+        {% else %}
+            It looks like this user has no products available for sale.
+        {% endif %}
+    {% endif %}
+{% endblock %}

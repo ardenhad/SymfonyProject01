@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
+use App\Entity\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,7 +116,14 @@ class ProductController extends AbstractController
         return $this->redirectToRoute("product_index");
     }
 
-    public function displayOwnerProducts() {
-
+    /**
+     * @Route("/products/{username}", name="product_ownerProducts")
+     * @Security(expression="is_granted('ROLE_USER')")
+     */
+    public function displayOwnerProducts(User $owner) {
+        return new Response ($this->renderView("product/user-products.html.twig", [
+           "products" => $owner->getProducts(),
+            "user" => $owner
+        ]));
     }
 }

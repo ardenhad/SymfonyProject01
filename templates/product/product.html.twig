@@ -1,13 +1,37 @@
+{% if not isShortDesc|default(false) %}
+    {% extends "base.html.twig" %}
+{% endif %}
+
+{% block body %}
 <div class="media text-muted pt-3">
-    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
         <span class="d-block">
             <ul>
-                <li>Product: {{ product.name }}</li>
-                <li>Price: {{ product.price }}</li>
-                <li>Status: {{ product.status }}</li>
-                <li>By: {{ product.owner.username }}</li>
-                <li>Created: {{ product.dateCreated|date }}</li>
-                <li>Last Updated: {{ product.dateUpdated|date }}</li>
+               <a href="{{ path('product_product', {'id': product.id}) }}">
+                    <li class="text-xl-left">Product: {{ product.name }}</li>
+                    <li class="text-xl-left">Price: {{ product.price }}</li>
+                    <li class="text-xl-left">By: {{ product.owner.username }}</li>
+                    {% if not isShortDesc|default(false) %}
+                        <li class="text-xl-left">Status: {{ product.status }}</li>
+                        <li class="text-xl-left">Created: {{ product.dateCreated|date }}</li>
+                        <li class="text-xl-left">Last Updated: {{ product.dateUpdated|date }}</li>
+                    {% endif %}
+               </a>
             </ul>
+            <br>
+            {% if is_granted("edit", product) %}
+                <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"
+                   class="btn btn-warning">Edit</a>
+            {% endif %}
+            {% if is_granted("delete", product) %}
+                <a href="{{ path('product_edit', {'id': product.id}) }}"
+                   class="btn btn-danger">Delete</a>
+            {% endif %}
+            {% if not isShortDesc|default(false) %}
+                <a href="{{ path('product_ownerProducts', {'username': product.owner.username}) }}"
+                   class="btn btn-light" style="background-color: deepskyblue; text-align: right">
+                More from {{ product.owner.username }}
+            {% endif %}
+            </a>
         </span>
 </div>
+{% endblock %}

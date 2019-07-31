@@ -3,11 +3,13 @@
 {% block body %}
     {% if products|length > 0 %}
         <h4>Available Products</h4>
-        <ul style="list-style-type:none">
+        <hr>
+        <ul style="padding-left:0px">
         {% for product in products %}
-            <li style="float:left">
-                {{ include("product/product-short.html.twig", {"product": product}) }}
+            <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
+                {{ include("product/product.html.twig", {"product": product , "isShortDesc": true}) }}
             </li>
+            <hr>
         {% endfor %}
         </ul>
     {% else %}
