@@ -11,15 +11,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @var \Twig\Environment
-     */
-    private $twig;
-
-    public function __construct(\Twig\Environment $twig)
-    {
-        $this->twig = $twig;
-    }
+    //security->firewall->main handles redirects.
 
     /**
      * @Route("/login", name="security_login")
@@ -27,7 +19,7 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils)
     {
 
-        return new Response($this->twig->render(
+        return new Response($this->renderView(
             "security/login.html.twig",
             [
                 "last_username" => $authenticationUtils->getLastUsername(),

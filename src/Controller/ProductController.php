@@ -10,7 +10,6 @@ use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -19,18 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductController extends AbstractController
 {
     /**
-     * @var \Twig\Environment
-     */
-    private $twig;
-    /**
      * @var ProductRepository
      */
     private $productRepository;
 
-    public function __construct(\Twig\Environment $twig, ProductRepository $productRepository)
+    public function __construct(ProductRepository $productRepository)
     {
-
-        $this->twig = $twig;
         $this->productRepository = $productRepository;
     }
     /**
@@ -40,7 +33,7 @@ class ProductController extends AbstractController
     {
         $products = $this->productRepository->findAll();
 
-        return new Response($this->twig->render("product/index.html.twig", [
+        return new Response($this->renderView("product/index.html.twig", [
             "products" => $products
         ]));
     }
@@ -51,7 +44,7 @@ class ProductController extends AbstractController
     public function product(Product $product)
     {
         return new Response(
-            $this->twig->render(
+            $this->renderView(
                 "product/product.html.twig",
                 ["product" => $product]
             )
@@ -70,7 +63,7 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $date = new\DateTime();
+            $date = new \DateTime();
 
             if ($isNew) {
                 $product->setDateCreated($date);
@@ -114,6 +107,7 @@ class ProductController extends AbstractController
         $entityManager->remove($product);
         $entityManager->flush();
 
-        return new RedirectResponse($this->router->generate("product/index.html.twig"));
+        //TODO: Send SMS to confirm that the product is successfully added/modified.
+        return $this->redirectToRoute("product_index");
     }
 }

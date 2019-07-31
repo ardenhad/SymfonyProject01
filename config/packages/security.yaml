@@ -24,6 +24,10 @@ security:
                 login_path: security_login
                 csrf_token_generator: security.csrf.token_manager
                 default_target_path: product_index
+
+            logout:
+                path: security_logout
+                target: product_index
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
