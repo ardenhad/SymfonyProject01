@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -86,6 +87,7 @@ class ProductController extends AbstractController
     }
     /**
      * @Route("/create", name="product_create")
+     * @Security(expression="is_granted('ROLE_USER)")
      */
     public function createProduct(Request $request) {
         return $this->setupProduct($request);
@@ -93,6 +95,7 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="product_edit")
+     * @Security(expression="is_granted('edit', product)")
      */
     public function editProduct(Request $request, Product $product) {
         return $this->setupProduct($request, $product);
@@ -100,6 +103,7 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="product_delete")
+     * @Security(expression="is_granted('delete', product)")
      */
     public function deleteProduct(Product $product) {
 
@@ -109,5 +113,9 @@ class ProductController extends AbstractController
 
         //TODO: Send SMS to confirm that the product is successfully added/modified.
         return $this->redirectToRoute("product_index");
+    }
+
+    public function displayOwnerProducts() {
+
     }
 }
