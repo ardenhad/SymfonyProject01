@@ -5,34 +5,22 @@ namespace App\Controller;
 
 
 use App\Entity\User;
-//use App\Event\UserRegisterEvent;
-use App\Form\UserType;
-use App\Repository\UserRepository;
+use App\Form\UserType
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
 class RegisterController extends AbstractController
 {
-    private $flashBag;
-
-    public function __construct(FlashBagInterface $flashBag)
-    {
-        $this->flashBag = $flashBag;
-    }
 
     /**
      * @Route("/register", name="user_register")
      */
     public function register(
         UserPasswordEncoderInterface $passwordEncoder,
-        Request $request,
-        EventDispatcherInterface $eventDispatcher
-        /*TokenGenerator $tokenGenerator*/
+        Request $request
     )
     {
 
@@ -53,8 +41,10 @@ class RegisterController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            //TODO: Add flashBag here after completing phone req.
-            $this->redirect("product_index");
+            //Message::sendMessage("");
+
+            $this->addFlash("notice", "Registration Successful.");
+            return $this->redirectToRoute("product_index");
         }
 
         return $this->render("register/register.html.twig", [

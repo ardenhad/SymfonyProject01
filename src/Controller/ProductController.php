@@ -8,12 +8,13 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Entity\User;
+use App\Services\Message;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @Route("products")
@@ -80,19 +81,26 @@ class ProductController extends AbstractController
 
             $message = "";
             if ($isNew)
-                $message = "Your product has been listed.";
+                $message = "Your product has been successfully listed.";
             else
-                $message = "Your product's information has been updated.";
+                $message = "Your product's information has been successfully updated.";
             $this->addFlash("notice", $message);
 
+            $linkToItem = $this->generateUrl(
+                "product_product",
+                ["id" => $product->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
 
-            //TODO: Send SMS to confirm that the product is successfully added/modified.
-            return $this->redirectToRoute("product_index");
+
+            $smsContent = "You have successfully listed a new product:\n". $linkToItem;
+
+            Message::sendSMS($smsContent);
+            return $this->redirectToRoute("product_product" , ["id" => $product->getId()]);
         }
 
         return $this->render("product/new-product.html.twig", [
-            "form" => $form->createView(),
-            "products" => $this->productRepository->findAll()
+            "form" => $form->createView()
         ]);
     }
     /**
