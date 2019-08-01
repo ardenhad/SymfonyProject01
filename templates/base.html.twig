@@ -28,7 +28,7 @@
                 <ul class="navbar-nav px-3">
                     {% if is_granted('ROLE_USER') %}
                         <li class="nav-item text-nowrap">
-                            <a class="nav-link" href="#">{{ app.user.username }}</a>
+                            <a class="nav-link" href="{{ path("product_ownerProducts", {"username": app.user.username}) }}">{{ app.user.username }}</a>
                         </li>
                         <li class="nav-item text-nowrap">
                             <a class="nav-link" href="{{ path('security_logout') }}">Sign out</a>
@@ -46,6 +46,19 @@
                 </ul>
             </div>
         </nav>
+        <nav>
+        </nav>
+        {% for message in app.flashes("notice") %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes("warning") %}
+            <div class="alert alert-warning">
+                {{ message }}
+            </div>
+        {% endfor %}
+
 
         <main role="main" class="container">
             <div class="ny-3 p-3 bg-white rounded box-shadow">

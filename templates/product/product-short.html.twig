@@ -14,7 +14,7 @@
                    class="btn btn-warning">Edit</a>
             {% endif %}
             {% if is_granted("delete", product) %}
-                <a href="{{ path('product_edit', {'id': product.id}) }}"
+                <a href="{{ path('product_delete', {'id': product.id}) }}"
                    class="btn btn-danger">Delete</a>
             {% endif %}
             </a>

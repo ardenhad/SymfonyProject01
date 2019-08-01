@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -77,6 +78,14 @@ class ProductController extends AbstractController
             $entityManager->persist($product);
             $entityManager->flush();
 
+            $message = "";
+            if ($isNew)
+                $message = "Your product has been listed.";
+            else
+                $message = "Your product's information has been updated.";
+            $this->addFlash("notice", $message);
+
+
             //TODO: Send SMS to confirm that the product is successfully added/modified.
             return $this->redirectToRoute("product_index");
         }
@@ -88,7 +97,7 @@ class ProductController extends AbstractController
     }
     /**
      * @Route("/create", name="product_create")
-     * @Security(expression="is_granted('ROLE_USER)")
+     * @Security(expression="is_granted('ROLE_USER')")
      */
     public function createProduct(Request $request) {
         return $this->setupProduct($request);
@@ -111,6 +120,8 @@ class ProductController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($product);
         $entityManager->flush();
+
+        $this->addFlash("warning", "Your product has been removed.");
 
         //TODO: Send SMS to confirm that the product is successfully added/modified.
         return $this->redirectToRoute("product_index");
