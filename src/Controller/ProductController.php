@@ -8,6 +8,7 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Services\Message;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,24 +22,31 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class ProductController extends AbstractController
 {
+    const PRICE_MIN = 0;
+    const PRICE_MAX = 10000;
     /**
      * @var ProductRepository
      */
     private $productRepository;
+    private $userRepository;
 
-    public function __construct(ProductRepository $productRepository)
+    public function __construct(ProductRepository $productRepository, UserRepository $userRepository)
     {
         $this->productRepository = $productRepository;
+        $this->userRepository = $userRepository;
     }
+
     /**
      * @Route("/", name="product_index")
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = $this->productRepository->findAll();
+        $params = $this->getSearchParams($request);
+        $products = $this->productRepository->getSearchResults($params);
 
         return new Response($this->renderView("product/index.html.twig", [
-            "products" => $products
+            "products" => $products,
+            "users" => $this->userRepository->findBy([], ["username" => "ASC"]),
         ]));
     }
 
@@ -131,18 +139,38 @@ class ProductController extends AbstractController
 
         $this->addFlash("warning", "Your product has been removed.");
 
-        //TODO: Send SMS to confirm that the product is successfully added/modified.
         return $this->redirectToRoute("product_index");
     }
 
     /**
-     * @Route("/products/{username}", name="product_ownerProducts")
-     * @Security(expression="is_granted('ROLE_USER')")
+     * @Route("/{username}", name="product_ownerProducts")
      */
     public function displayOwnerProducts(User $owner) {
         return new Response($this->renderView("product/user-products.html.twig", [
            "products" => $owner->getProducts(),
             "user" => $owner
         ]));
+    }
+
+    public function getSearchParams(Request $request) {
+        $searchInput = $request->get("q");
+        $user = $request->get("user");
+        $priceMin = $request->get("priceMin");
+        $priceMax = $request->get("priceMax");
+
+        //Setup default priceMin if not set.
+        if (is_null($priceMin) || strlen($priceMin) === 0)
+            $priceMin = self::PRICE_MIN;
+        //Setup default priceMax if not set.
+        if (is_null($priceMax) || strlen($priceMax) === 0)
+            $priceMax = self::PRICE_MAX;
+
+        //Switch if user mixed them.
+        if ($priceMin > $priceMax) {
+            $temp = $priceMin;
+            $priceMin = $priceMax;
+            $priceMax = $temp;
+        }
+        return [$searchInput, $user, $priceMin, $priceMax];
     }
 }

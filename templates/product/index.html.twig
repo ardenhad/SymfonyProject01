@@ -1,10 +1,44 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
+    <h4>Available Products</h4>
+    <hr>
+        <div>
+            <label>
+                <form>
+                    <input name="q" type="search">
+                    <input name="priceMin" type="number" min="0" max="10000">
+                    <input name="priceMax" type="number" min="0" max="10000">
+                    <select name="user">
+                        <option value="">Anyone</option>
+                        {% for user in users %}
+                            <option value="{{ user.username }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="Find">
+                </form>
+            </label>
+{#            <label>#}
+{#                <form>#}
+{#                    <select name="type">#}
+{#                        <option value="name">Name</option>#}
+{#                        <option value="price">Price</option>#}
+{#                        <option value="owner">Seller</option>#}
+{#                        <option value="status">Status</option>#}
+{#                        <option value="date_created">Creation Date</option>#}
+{#                        <option value="date_updated">Last Updated</option>#}
+{#                    </select>#}
+
+{#                    <select name="order">#}
+{#                        <option value="asc">Ascending</option>#}
+{#                        <option value="desc">Descending</option>#}
+{#                    </select>#}
+{#                </form>#}
+{#            </label>#}
+        </div>
+    <hr>
+    <ul style="padding-left:0px">
     {% if products|length > 0 %}
-        <h4>Available Products</h4>
-        <hr>
-        <ul style="padding-left:0px">
         {% for product in products %}
             <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
                 {{ include("product/product-short.html.twig", {"product": product}) }}

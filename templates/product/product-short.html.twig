@@ -4,7 +4,7 @@
             <ul>
                <a href="{{ path('product_product', {'id': product.id}) }}">
                     <li class="text-xl-left">Product: {{ product.name }}</li>
-                    <li class="text-xl-left">Price: {{ product.price }}</li>
+                    <li class="text-xl-left">Price: ${{ product.price }}</li>
                     <li class="text-xl-left">By: {{ product.owner.username }}</li>
                </a>
             </ul>
@@ -17,7 +17,6 @@
                 <a href="{{ path('product_delete', {'id': product.id}) }}"
                    class="btn btn-danger">Delete</a>
             {% endif %}
-            </a>
         </span>
     </div>
 {% endblock %}

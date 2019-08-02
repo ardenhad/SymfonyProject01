@@ -21,3 +21,6 @@
 ###> PhpStorm Thingies ###
 /.idea/
 ###< PhpStorm Thingies ###
+
+###> Credential Containing Files ###
+/src/Services/Message.php

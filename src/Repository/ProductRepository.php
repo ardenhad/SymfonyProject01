@@ -13,20 +13,52 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Product[]    findAll()
  * @method Product[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
+
 class ProductRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    public function __construct(RegistryInterface $registry, UserRepository $userRepository)
     {
         parent::__construct($registry, Product::class);
+        $this->userRepository = $userRepository;
     }
 
-    public function getOwnerProducts(User $owner) {
+    public function getOwnerProducts(User $owner)
+    {
         return $this->createQueryBuilder("p")
             ->where("p.owner = :owner")
             ->setParameter("owner", $owner)
-            ->orderBy("p.date_created", "ASC")
+            ->orderBy("p.date_created", "DESC")
             ->getQuery()
             ->getResult();
+    }
+
+    public function getSearchResults(array $params)
+    {
+        [$value, $user, $priceMin, $priceMax] = $params;
+        $user = $this->userRepository->findOneBy(["username" => $user]);
+
+        $qb = $this->createQueryBuilder("p")
+                ->where("p.price >= :priceMin")
+                ->setParameter("priceMin" , $priceMin)
+                ->andWhere("p.price <= :priceMax")
+                ->setParameter("priceMax" , $priceMax);
+            if (!is_null($value) && strlen($value) > 0) {
+                $qb = $qb->andWhere("p.name LIKE :name")
+                    ->setParameter("name", '%' . $value . '%');
+            }
+            if (!is_null($user)) {
+                $qb = $qb->andWhere("p.owner = :user")
+                    ->setParameter("user", $user);
+            }
+            $qb = $qb->orderBy("p.date_created", "DESC")
+                ->getQuery()
+                ->getResult();
+        return $qb;
     }
 
     // /**
