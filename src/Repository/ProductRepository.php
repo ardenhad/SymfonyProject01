@@ -56,8 +56,7 @@ class ProductRepository extends ServiceEntityRepository
                     ->setParameter("user", $user);
             }
             $qb = $qb->orderBy("p.date_created", "DESC")
-                ->getQuery()
-                ->getResult();
+                ->getQuery();
         return $qb;
     }
 

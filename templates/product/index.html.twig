@@ -37,16 +37,20 @@
 {#            </label>#}
         </div>
     <hr>
-    <ul style="padding-left:0px">
-    {% if products|length > 0 %}
-        {% for product in products %}
-            <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
-                {{ include("product/product-short.html.twig", {"product": product}) }}
-            </li>
-            <hr>
-        {% endfor %}
+    {{ knp_pagination_render(pagination) }}
+    <table>
+        <ul style="padding-left:0px">
+            {% if pagination|length > 0 %}
+                {% for product in pagination %}
+                    <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
+                        {{ include("product/product-short.html.twig", {"product": product}) }}
+                    </li>
+                    <hr>
+                {% endfor %}
         </ul>
-    {% else %}
-        It looks like there are no products available right now!
-    {% endif %}
+            {% else %}
+                It looks like there are no products available right now!
+            {% endif %}
+    </table>
+    {{ knp_pagination_render(pagination) }}
 {% endblock %}

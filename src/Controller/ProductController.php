@@ -10,6 +10,7 @@ use App\Repository\ProductRepository;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Services\Message;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,16 +25,19 @@ class ProductController extends AbstractController
 {
     const PRICE_MIN = 0;
     const PRICE_MAX = 10000;
-    /**
-     * @var ProductRepository
-     */
+
     private $productRepository;
     private $userRepository;
+    /**
+     * @var PaginatorInterface
+     */
+    private $paginator;
 
-    public function __construct(ProductRepository $productRepository, UserRepository $userRepository)
+    public function __construct(ProductRepository $productRepository, UserRepository $userRepository, PaginatorInterface $paginator)
     {
         $this->productRepository = $productRepository;
         $this->userRepository = $userRepository;
+        $this->paginator = $paginator;
     }
 
     /**
@@ -44,8 +48,14 @@ class ProductController extends AbstractController
         $params = $this->getSearchParams($request);
         $products = $this->productRepository->getSearchResults($params);
 
+        $pagination = $this->paginator->paginate(
+            $products,
+            $request->query->getInt("page", 1),
+            10
+        );
+
         return new Response($this->renderView("product/index.html.twig", [
-            "products" => $products,
+            "pagination" => $pagination,
             "users" => $this->userRepository->findBy([], ["username" => "ASC"]),
         ]));
     }
