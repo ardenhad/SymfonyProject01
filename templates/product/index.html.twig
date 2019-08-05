@@ -6,13 +6,17 @@
         <div>
             <label>
                 <form>
-                    <input name="q" type="search">
-                    <input name="priceMin" type="number" min="0" max="10000">
-                    <input name="priceMax" type="number" min="0" max="10000">
+                    <input name="q" type="search" value={{ filterData["value"] }}>
+                    <input name="priceMin" type="number" min="0" max="10000" value={{ filterData["priceMin"] }}>
+                    <input name="priceMax" type="number" min="0" max="10000" value={{ filterData["priceMax"] }} >
                     <select name="user">
-                        <option value="">Anyone</option>
+                        <option>Anyone</option>
                         {% for user in users %}
-                            <option value="{{ user.username }}">{{ user.username }}</option>
+                            {% if user.username == filterData["user"] %}
+                                <option value="{{ user.username }}" selected>{{ user.username }}</option>
+                            {% else %}
+                                <option value="{{ user.username }}">{{ user.username }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                     <input type="submit" value="Find">

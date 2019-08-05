@@ -25,6 +25,7 @@ class ProductController extends AbstractController
 {
     const PRICE_MIN = 0;
     const PRICE_MAX = 10000;
+    const ITEM_PER_PAGE = 10; //Product count per page, used for pagination.
 
     private $productRepository;
     private $userRepository;
@@ -45,18 +46,33 @@ class ProductController extends AbstractController
      */
     public function index(Request $request)
     {
-        $params = $this->getSearchParams($request);
-        $products = $this->productRepository->getSearchResults($params);
+        $filterParams = $this->getSearchParams($request);
+        $products = $this->productRepository->getSearchResults($filterParams);
 
+        [$value, $user, $priceMin, $priceMax] = $filterParams;
+        if (is_null($value))
+            $value = "";
+        if (is_null($user))
+            $user = "";
+        if ($priceMin === 0)
+            $priceMin = "";
+        if ($priceMax === 10000)
+            $priceMax = "";
+        $filterDisplayedParams = [
+            "value" => $value,
+            "user" => $user,
+            "priceMin" => $priceMin,
+            "priceMax" => $priceMax
+        ];
         $pagination = $this->paginator->paginate(
             $products,
-            $request->query->getInt("page", 1),
-            10
+            $request->query->getInt("page", 1), self::ITEM_PER_PAGE
         );
 
         return new Response($this->renderView("product/index.html.twig", [
             "pagination" => $pagination,
             "users" => $this->userRepository->findBy([], ["username" => "ASC"]),
+            "filterData" => $filterDisplayedParams
         ]));
     }
 
