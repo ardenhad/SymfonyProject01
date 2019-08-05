@@ -39,7 +39,7 @@ class ProductRepository extends ServiceEntityRepository
 
     public function getSearchResults(array $params)
     {
-        [$value, $user, $priceMin, $priceMax] = $params;
+        [$value, $user, $priceMin, $priceMax, $sortBy, $sortOrder] = $params;
         $user = $this->userRepository->findOneBy(["username" => $user]);
 
         $qb = $this->createQueryBuilder("p")
@@ -55,8 +55,17 @@ class ProductRepository extends ServiceEntityRepository
                 $qb = $qb->andWhere("p.owner = :user")
                     ->setParameter("user", $user);
             }
-            $qb = $qb->orderBy("p.date_created", "DESC")
+            if (is_null($sortOrder) || strlen($sortOrder) === 0) {
+                $sortOrder = "DESC";
+            }
+            //No sort type, then order is meaningless...
+            if (is_null($sortBy) || strlen($sortBy) === 0) {
+                $sortBy = "date_created";
+                $sortOrder = "DESC";
+            }
+            $qb = $qb->orderBy("p.".$sortBy, $sortOrder)
                 ->getQuery();
+
         return $qb;
     }
 

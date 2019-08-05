@@ -49,7 +49,7 @@ class ProductController extends AbstractController
         $filterParams = $this->getSearchParams($request);
         $products = $this->productRepository->getSearchResults($filterParams);
 
-        [$value, $user, $priceMin, $priceMax] = $filterParams;
+        [$value, $user, $priceMin, $priceMax, $sortType, $sortOrder] = $filterParams;
         if (is_null($value))
             $value = "";
         if (is_null($user))
@@ -58,12 +58,31 @@ class ProductController extends AbstractController
             $priceMin = "";
         if ($priceMax === 10000)
             $priceMax = "";
+        if (is_null($sortType) || strlen($sortType) === 0)
+            $sortType = "date_changed";
+        if (is_null($sortOrder) || strlen($sortOrder) === 0 )
+            $sortOrder = "asc";
+
         $filterDisplayedParams = [
             "value" => $value,
             "user" => $user,
             "priceMin" => $priceMin,
-            "priceMax" => $priceMax
+            "priceMax" => $priceMax,
+            "sortType" => $sortType,
+            "sortOrder" => $sortOrder
         ];
+
+        $sortingTypes = [
+            "name" => "Name",
+            "price" => "Price",
+            "owner" => "Seller"
+        ];
+
+        $sortingOrders = [
+            "asc" => "Ascending",
+            "desc" => "Descending"
+        ];
+
         $pagination = $this->paginator->paginate(
             $products,
             $request->query->getInt("page", 1), self::ITEM_PER_PAGE
@@ -72,7 +91,9 @@ class ProductController extends AbstractController
         return new Response($this->renderView("product/index.html.twig", [
             "pagination" => $pagination,
             "users" => $this->userRepository->findBy([], ["username" => "ASC"]),
-            "filterData" => $filterDisplayedParams
+            "filterData" => $filterDisplayedParams,
+            "types" => $sortingTypes,
+            "orders" => $sortingOrders
         ]));
     }
 
@@ -183,6 +204,9 @@ class ProductController extends AbstractController
         $user = $request->get("user");
         $priceMin = $request->get("priceMin");
         $priceMax = $request->get("priceMax");
+        $sortType = $request->get("type");
+        $sortOrder = $request->get("order");
+
 
         //Setup default priceMin if not set.
         if (is_null($priceMin) || strlen($priceMin) === 0)
@@ -197,6 +221,6 @@ class ProductController extends AbstractController
             $priceMin = $priceMax;
             $priceMax = $temp;
         }
-        return [$searchInput, $user, $priceMin, $priceMax];
+        return [$searchInput, $user, $priceMin, $priceMax, $sortType, $sortOrder];
     }
 }

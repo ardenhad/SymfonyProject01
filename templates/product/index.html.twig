@@ -4,13 +4,13 @@
     <h4>Available Products</h4>
     <hr>
         <div>
-            <label>
-                <form>
+            <form>
+                <label>
                     <input name="q" type="search" value={{ filterData["value"] }}>
                     <input name="priceMin" type="number" min="0" max="10000" value={{ filterData["priceMin"] }}>
                     <input name="priceMax" type="number" min="0" max="10000" value={{ filterData["priceMax"] }} >
                     <select name="user">
-                        <option>Anyone</option>
+                        <option value="">Anyone</option>
                         {% for user in users %}
                             {% if user.username == filterData["user"] %}
                                 <option value="{{ user.username }}" selected>{{ user.username }}</option>
@@ -19,29 +19,40 @@
                             {% endif %}
                         {% endfor %}
                     </select>
+                </label>
+                <label>
+                    <select name="type">
+                        {% for tableName, displayName in types %}
+                            {% if tableName == filterData["sortType"] %}
+                                <option value="{{ tableName }}" selected>{{ displayName }}</option>
+                            {% else %}
+                                <option value="{{ tableName }}">{{ displayName }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <select name="order">
+                        {% for orderType, displayName in orders %}
+                            {% if orderType == filterData["sortOrder"] %}
+                                <option value="{{ orderType }}" selected>{{ displayName }}</option>
+                            {% else %}
+                                <option value="{{ orderType }}">{{ displayName }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
                     <input type="submit" value="Find">
-                </form>
-            </label>
-{#            <label>#}
-{#                <form>#}
-{#                    <select name="type">#}
-{#                        <option value="name">Name</option>#}
-{#                        <option value="price">Price</option>#}
-{#                        <option value="owner">Seller</option>#}
-{#                        <option value="status">Status</option>#}
-{#                        <option value="date_created">Creation Date</option>#}
-{#                        <option value="date_updated">Last Updated</option>#}
-{#                    </select>#}
+                    <a href=
+                    "{{ path('product_index', {
+                        'pagination':  pagination,
+                        'users': users,
+                        'filterData': {},
+                        'types': types,
+                        'orders': orders}) }} ">Clear Filter</a>
 
-{#                    <select name="order">#}
-{#                        <option value="asc">Ascending</option>#}
-{#                        <option value="desc">Descending</option>#}
-{#                    </select>#}
-{#                </form>#}
-{#            </label>#}
+            </form>
         </div>
     <hr>
     {{ knp_pagination_render(pagination) }}
+    <hr>
     <table>
         <ul style="padding-left:0px">
             {% if pagination|length > 0 %}
@@ -56,5 +67,6 @@
                 It looks like there are no products available right now!
             {% endif %}
     </table>
+    <hr>
     {{ knp_pagination_render(pagination) }}
 {% endblock %}
