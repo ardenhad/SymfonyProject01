@@ -42,7 +42,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/", name="product_index")
+     * @Route("", name="product_index")
      */
     public function index(Request $request)
     {
