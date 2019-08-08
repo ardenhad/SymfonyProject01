@@ -47,6 +47,21 @@ class Product
      */
     private $date_updated;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $quantity;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $lockedQuantity; //Returns quantity that is inside carts of buyers.
+
+    public function __construct()
+    {
+        $this->lockedQuantity = 0;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -146,5 +161,37 @@ class Product
     public function setDateUpdated($date_updated): void
     {
         $this->date_updated = $date_updated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getQuantity()
+    {
+        return $this->quantity;
+    }
+
+    /**
+     * @param mixed $quantity
+     */
+    public function setQuantity($quantity): void
+    {
+        $this->quantity = $quantity;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getLockedQuantity()
+    {
+        return $this->lockedQuantity;
+    }
+
+    /**
+     * @param integer $lockedQuantity
+     */
+    public function setLockedQuantity($lockedQuantity): void
+    {
+        $this->lockedQuantity = $lockedQuantity;
     }
 }

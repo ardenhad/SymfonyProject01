@@ -98,6 +98,7 @@ class AppFixtures extends Fixture
             $product->setName(self::PRODUCT_NAMES[rand(0, count(self::PRODUCT_NAMES) - 1)]);
             $product->setOwner($this->getReference(self::USERS[rand(0, count(self::USERS) - 1)]["username"]));
             $product->setPrice(rand(1, 10000));
+            $product->setQuantity(rand(1, 1000));
 
             $date = new \DateTime();
             $product->setDateUpdated($date);

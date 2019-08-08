@@ -59,6 +59,12 @@ class User implements UserInterface, \Serializable
      */
     private $roles;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\CartItem", mappedBy="owners")
+     * @ORM\JoinColumn()
+     */
+    private $cartItems;
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
@@ -225,5 +231,21 @@ class User implements UserInterface, \Serializable
         list(
             $this->id, $this->username, $this->password
             ) = unserialize($serialized);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCartItems()
+    {
+        return $this->cartItems;
+    }
+
+    /**
+     * @param mixed $cartItems
+     */
+    public function setCartItems($cartItems): void
+    {
+        $this->cartItems = $cartItems;
     }
 }

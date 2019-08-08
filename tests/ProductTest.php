@@ -7,8 +7,6 @@ namespace App\Tests;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 
 class ProductTest extends WebTestCase
 {
@@ -141,7 +139,6 @@ class ProductTest extends WebTestCase
     }
 
     /**
-     *
      * @dataProvider provideSetupData
      */
     public function testUserEditProduct($productCreateData, $productEditData)

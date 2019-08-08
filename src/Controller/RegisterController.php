@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,6 +18,7 @@ class RegisterController extends AbstractController
 
     /**
      * @Route("/register", name="user_register")
+     * @Security("!is_granted('ROLE_USER')", message="You need to sign out to register.")
      */
     public function register(
         UserPasswordEncoderInterface $passwordEncoder,
