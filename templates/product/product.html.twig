@@ -21,8 +21,9 @@
             <a href="{{ path('product_delete', {'id': product.id}) }}"
                class="btn btn-danger">Delete</a>
         {% endif %}
+        {%  include "cart/cart-item-shift-button.html.twig" %}
             <a href="{{ path('product_ownerProducts', {'username': product.owner.username}) }}"
-               class="btn btn-light" style="background-color: deepskyblue;" >
+               class="btn btn-light text-right" style="background-color: deepskyblue;" >
                 More from {{ product.owner.username }}
             </a>
     </span>

@@ -1,4 +1,6 @@
 {% block body %}
+    {# Available stock = quantity in current user cart + total quantity - quantity in other users cart #}
+    {% set availableStock = item.quantity + item.product.quantity - item.product.lockedQuantity %}
     <div class="media text-muted pt-3">
         <span class="d-block">
             <ul>
@@ -8,17 +10,11 @@
                    <li class="text-xl-left">Current Price: ${{ item.product.price }}</li>
                    <li class="text-xl-left">By: {{ item.product.owner.username }}</li>
                    <li class="text-xl-left">Count: {{ item.quantity }}</li>
+                   <li class="text-xl-left">Available Stock: {{ availableStock }}</li>
                </a>
             </ul>
-            <br>
-{#            {% if is_granted("edit", product) %}#}
-{#                <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"#}
-{#                   class="btn btn-warning">Edit</a>#}
-{#            {% endif %}#}
-{#            {% if is_granted("delete", product) %}#}
-{#                <a href="{{ path('product_delete', {'id': product.id}) }}"#}
-{#                   class="btn btn-danger">Delete</a>#}
-{#            {% endif %}#}
+            <br/>
+            {{ include ("cart/cart-item-shift-button.html.twig", {"product": item.product}) }}
         </span>
     </div>
 {% endblock %}

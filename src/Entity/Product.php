@@ -195,20 +195,4 @@ class Product
     {
         $this->lockedQuantity = $lockedQuantity;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getCartItem()
-    {
-        return $this->cartItem;
-    }
-
-    /**
-     * @param mixed $cartItem
-     */
-    public function setCartItem($cartItem): void
-    {
-        $this->cartItem = $cartItem;
-    }
 }

@@ -9,7 +9,7 @@ use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Services\Message;
+use App\Service\Message;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,7 +60,7 @@ class ProductController extends AbstractController
             $priceMax = "";
         if (is_null($sortType) || strlen($sortType) === 0)
             $sortType = "date_changed";
-        if (is_null($sortOrder) || strlen($sortOrder) === 0 )
+        if (is_null($sortOrder) || strlen($sortOrder) === 0)
             $sortOrder = "asc";
 
         $filterDisplayedParams = [
@@ -158,6 +158,7 @@ class ProductController extends AbstractController
             "form" => $form->createView()
         ]);
     }
+
     /**
      * @Route("/create", name="product_create")
      * @Security(expression="is_granted('ROLE_USER')")

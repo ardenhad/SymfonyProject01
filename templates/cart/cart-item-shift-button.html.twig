@@ -1,0 +1,37 @@
+{% if not is_granted("edit", product) %}
+    {# Find out if user has the product in their cart. #}
+    {% set isProductInCart = false %}
+    {% for cartItem in app.user.cartItems if not isProductInCart %}
+        {% if cartItem.product is same as(product) %}
+            {% set isProductInCart = true %}
+        {% endif %}
+    {% endfor %}
+    {% if isProductInCart %}
+        {% if app.request.pathInfo is same as("/cart")%}
+        <div class="input-group mb-1">
+            <div class="input-group-prepend">
+                <span class="input-group-text">#</span>
+            </div>
+            <input type="number" class="form-control" min="1" max="{{ availableStock }}" value="{{ item.quantity }}" aria-label="Amount (to the nearest dollar)">
+            <div class="input-group-append">
+                <button class="btn btn-primary" href="" type="button">Edit Count</button>
+            </div>
+            <div class="input-group-append">
+                <button class="btn btn-secondary" href="" type="button">Remove from Cart</button>
+            </div>
+        </div>
+        {% else %}
+            <a style="margin-left:40px" href="" class="btn btn-secondary">Remove from Cart</a>
+        {% endif %}
+    {% else %}
+        <div class="input-group mb-1">
+            <div class="input-group-prepend">
+                <span class="input-group-text">#</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+            <div class="input-group-append">
+                <button class="btn btn-primary" href="" type="button">Add to Cart</button>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

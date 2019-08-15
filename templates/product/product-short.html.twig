@@ -17,6 +17,7 @@
                 <a href="{{ path('product_delete', {'id': product.id}) }}"
                    class="btn btn-danger">Delete</a>
             {% endif %}
+            {% include "cart/cart-item-shift-button.html.twig" %}
         </span>
     </div>
 {% endblock %}

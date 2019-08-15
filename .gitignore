@@ -23,7 +23,9 @@
 ###< PhpStorm Thingies ###
 
 ###> Credential Containing Files ###
-/src/Services/Message.php
+/src/Service/Message.php
+###< Credential Containing Files ###
+
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
