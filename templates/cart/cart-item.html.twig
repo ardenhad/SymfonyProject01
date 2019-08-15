@@ -1,0 +1,24 @@
+{% block body %}
+    <div class="media text-muted pt-3">
+        <span class="d-block">
+            <ul>
+               <a href="{{ path('product_product', {'id': item.product.id }) }}">
+                   <li class="text-xl-left">Product: {{ item.product.name }}</li>
+                   <li class="text-xl-left">Cart Price: ${{ item.price }}</li>
+                   <li class="text-xl-left">Current Price: ${{ item.product.price }}</li>
+                   <li class="text-xl-left">By: {{ item.product.owner.username }}</li>
+                   <li class="text-xl-left">Count: {{ item.quantity }}</li>
+               </a>
+            </ul>
+            <br>
+{#            {% if is_granted("edit", product) %}#}
+{#                <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"#}
+{#                   class="btn btn-warning">Edit</a>#}
+{#            {% endif %}#}
+{#            {% if is_granted("delete", product) %}#}
+{#                <a href="{{ path('product_delete', {'id': product.id}) }}"#}
+{#                   class="btn btn-danger">Delete</a>#}
+{#            {% endif %}#}
+        </span>
+    </div>
+{% endblock %}

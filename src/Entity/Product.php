@@ -17,8 +17,8 @@ class Product
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="products")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
      */
     private $owner;
 
@@ -56,6 +56,7 @@ class Product
      * @ORM\Column(type="integer")
      */
     private $lockedQuantity; //Returns quantity that is inside carts of buyers.
+
 
     public function __construct()
     {
@@ -193,5 +194,21 @@ class Product
     public function setLockedQuantity($lockedQuantity): void
     {
         $this->lockedQuantity = $lockedQuantity;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCartItem()
+    {
+        return $this->cartItem;
+    }
+
+    /**
+     * @param mixed $cartItem
+     */
+    public function setCartItem($cartItem): void
+    {
+        $this->cartItem = $cartItem;
     }
 }

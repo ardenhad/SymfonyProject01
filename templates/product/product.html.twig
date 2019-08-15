@@ -2,28 +2,29 @@
 
 {% block body %}
 <div class="media text-muted pt-3">
-        <span class="d-block">
-            <ul>
-                    <li class="text-xl-left">Product: {{ product.name }}</li>
-                    <li class="text-xl-left">Price: ${{ product.price }}</li>
-                    <li class="text-xl-left">By: {{ product.owner.username }}</li>
-                    <li class="text-xl-left">Status: {{ product.status }}</li>
-                    <li class="text-xl-left">Created: {{ product.dateCreated|date }}</li>
-                    <li class="text-xl-left">Last Updated: {{ product.dateUpdated|date }}</li>
-            </ul>
-            <br>
-            {% if is_granted("edit", product) %}
-                <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"
-                   class="btn btn-warning">Edit</a>
-            {% endif %}
-            {% if is_granted("delete", product) %}
-                <a href="{{ path('product_delete', {'id': product.id}) }}"
-                   class="btn btn-danger">Delete</a>
-            {% endif %}
-                <a href="{{ path('product_ownerProducts', {'username': product.owner.username}) }}"
-                   class="btn btn-light" style="background-color: deepskyblue;" >
-                    More from {{ product.owner.username }}
-                </a>
-        </span>
+    <span class="d-block">
+        <ul>
+                <li class="text-xl-left">Product: {{ product.name }}</li>
+                <li class="text-xl-left">Price: ${{ product.price }}</li>
+                <li class="text-xl-left">By: {{ product.owner.username }}</li>
+                <li class="text-xl-left">Status: {{ product.status }}</li>
+                <li class="text-xl-left">Quantity: {{ product.quantity }}</li>
+                <li class="text-xl-left">Created: {{ product.dateCreated|date }}</li>
+                <li class="text-xl-left">Last Updated: {{ product.dateUpdated|date }}</li>
+        </ul>
+        <br>
+        {% if is_granted("edit", product) %}
+            <a style="margin-left:40px" href="{{ path('product_edit', {'id': product.id}) }}"
+               class="btn btn-warning">Edit</a>
+        {% endif %}
+        {% if is_granted("delete", product) %}
+            <a href="{{ path('product_delete', {'id': product.id}) }}"
+               class="btn btn-danger">Delete</a>
+        {% endif %}
+            <a href="{{ path('product_ownerProducts', {'username': product.owner.username}) }}"
+               class="btn btn-light" style="background-color: deepskyblue;" >
+                More from {{ product.owner.username }}
+            </a>
+    </span>
 </div>
 {% endblock %}

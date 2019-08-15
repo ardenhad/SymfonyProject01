@@ -21,6 +21,7 @@ class ProductType extends AbstractType
                 "scale" => 2
             ])
             ->add("status", textType::class)
+            ->add("quantity", numberType::class)
             ->add("Register", SubmitType::class);
     }
 

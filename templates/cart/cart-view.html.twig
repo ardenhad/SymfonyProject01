@@ -1,0 +1,18 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <table>
+        {% if cart|length > 0 %}
+            <ul style="padding-left:0px">
+            {% for item in cart %}
+                <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
+                    {{ include("cart/cart-item.html.twig", {"item": item}) }}
+                </li>
+                <hr>
+            {% endfor %}
+            </ul>
+        {% else %}
+            It looks like you have no items in your cart!
+        {% endif %}
+    </table>
+{% endblock %}

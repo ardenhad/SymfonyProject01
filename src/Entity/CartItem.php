@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use http\Exception\InvalidArgumentException;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CartItemRepository")
@@ -17,12 +18,16 @@ class CartItem
     private $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="cart")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @param User $user
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    private $owners;
+    private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product")
+     * @param Product $product
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id")
      */
     private $product;
 
@@ -39,17 +44,17 @@ class CartItem
     /**
      * @return mixed
      */
-    public function getOwners()
+    public function getUser()
     {
-        return $this->owners;
+        return $this->user;
     }
 
     /**
-     * @param mixed $owners
+     * @param mixed $user
      */
-    public function setOwners($owners): void
+    public function setUser($user): void
     {
-        $this->owners = $owners;
+        $this->user = $user;
     }
 
     /**
@@ -63,7 +68,7 @@ class CartItem
     /**
      * @param mixed $product
      */
-    public function setProduct($product): void
+    public function setProduct(Product $product): void
     {
         $this->product = $product;
     }
@@ -77,11 +82,23 @@ class CartItem
     }
 
     /**
-     * @param mixed $quantity
+     * @param mixed $requestedQuantity
      */
-    public function setQuantity($quantity): void
+    public function setQuantity($requestedQuantity): void
     {
-        $this->quantity = $quantity;
+        /** @var Product $product */
+        $product = $this->product;
+
+        //If quantity requested is higher than (actual quantity - reserved quantity)...
+        if ($requestedQuantity > $product->getQuantity() - $product->getLockedQuantity()) {
+            throw new \InvalidArgumentException("Requested quantity by cart exceeded available quantity");
+        }
+
+        //Lock (prevLockedCountOnProduct - prevLockedByThisItem) + currentRequestByThisItem
+        $productUpdatedLockedQuantity = ($product->getLockedQuantity() - $this->quantity ) + $requestedQuantity;
+        $product->setLockedQuantity($productUpdatedLockedQuantity);
+
+        $this->quantity = $requestedQuantity;
     }
 
     /**

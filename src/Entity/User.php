@@ -60,8 +60,7 @@ class User implements UserInterface, \Serializable
     private $roles;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\CartItem", mappedBy="owners")
-     * @ORM\JoinColumn()
+     * @ORM\OneToMany(targetEntity="App\Entity\CartItem", mappedBy="user")
      */
     private $cartItems;
 
@@ -247,5 +246,13 @@ class User implements UserInterface, \Serializable
     public function setCartItems($cartItems): void
     {
         $this->cartItems = $cartItems;
+    }
+
+    /**
+     * @param mixed $products
+     */
+    public function setProducts($products): void
+    {
+        $this->products = $products;
     }
 }

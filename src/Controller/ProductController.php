@@ -150,7 +150,7 @@ class ProductController extends AbstractController
 
             $smsContent = "You have successfully listed a new product:\n". $linkToItem;
 
-            Message::sendSMS($smsContent);
+//            Message::sendSMS($smsContent);
             return $this->redirectToRoute("product_product" , ["id" => $product->getId()]);
         }
 
