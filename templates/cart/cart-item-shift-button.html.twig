@@ -1,9 +1,19 @@
 {% if not is_granted("edit", product) %}
+    {# Available stock = quantity in current user cart + total quantity - quantity in other users cart #}
+    {% if product is defined %}
+        {# Called from Add To Cart, product must be defined here. item.quantity = 0 in this case. #}
+        {% set availableStock = product.quantity - product.lockedQuantity %}
+    {% else %}
+        {# Called from Edit Cart Amount, item must be defined here. #}
+        {% set availableStock = item.quantity + item.product.quantity - item.product.lockedQuantity %}
+    {% endif %}
     {# Find out if user has the product in their cart. #}
     {% set isProductInCart = false %}
+    {% set itemId = -1 %}
     {% for cartItem in app.user.cartItems if not isProductInCart %}
         {% if cartItem.product is same as(product) %}
             {% set isProductInCart = true %}
+            {% set itemId = cartItem.id %}
         {% endif %}
     {% endfor %}
     {% if isProductInCart %}
@@ -17,21 +27,29 @@
                 <button class="btn btn-primary" href="" type="button">Edit Count</button>
             </div>
             <div class="input-group-append">
-                <button class="btn btn-secondary" href="" type="button">Remove from Cart</button>
+                <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"cartItem": itemId}) }}" >Remove from Cart</a>
             </div>
         </div>
         {% else %}
-            <a style="margin-left:40px" href="" class="btn btn-secondary">Remove from Cart</a>
+            <a style="margin-left:40px" href="{{ path('cart_deleteItem', {"cartItem": itemId}) }}" class="btn btn-secondary">Remove from Cart</a>
         {% endif %}
     {% else %}
-        <div class="input-group mb-1">
-            <div class="input-group-prepend">
-                <span class="input-group-text">#</span>
+        <form>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">#</span>
+                </div>
+                {% if product is defined %}
+                    {% set productId = product.id %}
+                {% else %}
+                    {% set productId = item.product.id %}
+                {% endif %}
+                <input id="quantity_{{ productId }}" type="number" class="form-control" min="1" max="{{ availableStock }}" aria-label="Amount (to the nearest dollar)">
+                <div class="input-group-append">
+                    <button id="button1" type="button" onclick="addToCart({{ productId }})" class="btn btn-primary">Add to Cart</button>
+                </div>
             </div>
-            <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
-            <div class="input-group-append">
-                <button class="btn btn-primary" href="" type="button">Add to Cart</button>
-            </div>
-        </div>
+        </form>
     {% endif %}
 {% endif %}
+
