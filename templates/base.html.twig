@@ -75,6 +75,7 @@
             <script src="{{ asset("build/js/app.js") }}"></script>
         {% endblock %}
     </body>
+
     <script>
 
         function addToCart(id) {
@@ -88,7 +89,7 @@
                 data: { quantity: quantity },
                 success: function (response) {
                     console.log(response);
-                    window.location.href = '/cart';
+                    // window.location.href = '/cart';
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(textStatus, errorThrown);
@@ -107,7 +108,7 @@
                 data: { quantity: quantity },
                 success: function (response) {
                     console.log(response);
-                    window.location.href = "/cart";
+                    // window.location.href = "/cart";
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(textStatus, errorThrown);

@@ -9,6 +9,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\Security as ServiceSecurity;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +27,7 @@ class CartController extends AbstractController
     private $userRepository;
     private $security;
 
-    public function __construct(UserRepository $userRepository, Security $security)
+    public function __construct(UserRepository $userRepository, Security $security, SessionInterface $session)
     {
         $this->userRepository = $userRepository;
         $this->security = $security;
@@ -38,7 +39,7 @@ class CartController extends AbstractController
     public function index(Request $request)
     {
         /** @var User $user */
-        $user = $this->getUser();
+        $user = $this->security->getUser();
         if (is_null($user)) {
             //TODO: Retrieve cart from session.
             $cart = [];
@@ -77,7 +78,7 @@ class CartController extends AbstractController
         } else {
             //TODO: Add to session cart.
         }
-        return $this->json("success");
+        return $this->redirectToRoute("cart_index");
     }
 
     /**
