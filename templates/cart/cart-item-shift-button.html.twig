@@ -1,11 +1,12 @@
 {% if not is_granted("edit", product) %}
     {# Available stock = quantity in current user cart + total quantity - quantity in other users cart #}
-    {% if product is defined %}
-        {# Called from Add To Cart, product must be defined here. item.quantity = 0 in this case. #}
-        {% set availableStock = product.quantity - product.lockedQuantity %}
-    {% else %}
-        {# Called from Edit Cart Amount, item must be defined here. #}
+    {% if item is defined %}
+        {# Called from Cart pages, item must be defined here. #}
         {% set availableStock = item.quantity + item.product.quantity - item.product.lockedQuantity %}
+    {% else %}
+        {# Called from Product pages, product must be defined here. item.quantity = 0 in this case. #}
+        {% set availableStock = product.quantity - product.lockedQuantity %}
+        {{ dump(availableStock) }}
     {% endif %}
     {# Find out if user has the product in their cart. #}
     {% set isProductInCart = false %}
@@ -22,9 +23,9 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">#</span>
             </div>
-            <input type="number" class="form-control" min="1" max="{{ availableStock }}" value="{{ item.quantity }}" aria-label="Amount (to the nearest dollar)">
+            <input id="quantity_{{ itemId }}" type="number" class="form-control" min="1" max="{{ availableStock }}" value="{{ item.quantity }}">
             <div class="input-group-append">
-                <button class="btn btn-primary" href="" type="button">Edit Count</button>
+                <button id="button" type="button" onclick="editCartItem({{ itemId }})" class="btn btn-primary">Edit Count</button>
             </div>
             <div class="input-group-append">
                 <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"cartItem": itemId}) }}" >Remove from Cart</a>
@@ -44,9 +45,9 @@
                 {% else %}
                     {% set productId = item.product.id %}
                 {% endif %}
-                <input id="quantity_{{ productId }}" type="number" class="form-control" min="1" max="{{ availableStock }}" aria-label="Amount (to the nearest dollar)">
+                <input id="quantity_{{ productId }}" type="number" class="form-control" min="1" max="{{ availableStock }}">
                 <div class="input-group-append">
-                    <button id="button1" type="button" onclick="addToCart({{ productId }})" class="btn btn-primary">Add to Cart</button>
+                    <button id="button" type="button" onclick="addToCart({{ productId }})" class="btn btn-primary">Add to Cart</button>
                 </div>
             </div>
         </form>

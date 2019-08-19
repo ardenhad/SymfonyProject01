@@ -8,8 +8,8 @@ use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Symfony\Component\Security\Core\Security;
 use App\Service\Security as ServiceSecurity;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,6 +72,8 @@ class CartController extends AbstractController
 
             $entityManager->persist($cartItem);
             $entityManager->flush();
+
+            $this->addFlash("notice", "Item has been successfully added to your cart");
         } else {
             //TODO: Add to session cart.
         }
@@ -79,7 +81,7 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/edit/{cartItem}", name="cart_editItem")
+     * @Route("/edit/{cartItem}", name="cart_editItem", methods={"GET", "POST"})
      */
     public function editCartItem(Request $request, CartItem $cartItem)
     {
@@ -90,9 +92,12 @@ class CartController extends AbstractController
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
             $cartItem->setQuantity($quantity);
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($cartItem);
             $entityManager->flush();
+
+            $this->addFlash("notice", "Item count has been successfully modified");
         } else {
             //TODO: Edit session cartItem.
         }
@@ -113,6 +118,8 @@ class CartController extends AbstractController
 
             $entityManager->remove($cartItem);
             $entityManager->flush();
+
+            $this->addFlash("notice", "Item has been successfully removed from your cart.");
         } else {
             //TODO: Delete cartItem from session.
         }

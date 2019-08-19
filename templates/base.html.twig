@@ -77,7 +77,7 @@
     </body>
     <script>
 
-        function addToCart(id){
+        function addToCart(id) {
 
             let quantity = $('#quantity_'+id).val();
 
@@ -94,6 +94,25 @@
                     console.log(textStatus, errorThrown);
                 }
             });
-        };
+        }
+
+        function editCartItem(id) {
+
+            let quantity = $('#quantity_'+id).val();
+
+            $.ajax({
+                url: "/cart/edit/"+id,
+                type: "post",
+                datatype: "json",
+                data: { quantity: quantity },
+                success: function (response) {
+                    console.log(response);
+                    window.location.href = "/cart";
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+        }
     </script>
 </html>

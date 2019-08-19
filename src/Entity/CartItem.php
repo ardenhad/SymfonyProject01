@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use http\Exception\InvalidArgumentException;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CartItemRepository")
@@ -88,9 +87,9 @@ class CartItem
     {
         /** @var Product $product */
         $product = $this->product;
-
-        //If quantity requested is higher than (actual quantity - reserved quantity)...
-        if ($requestedQuantity > $product->getQuantity() - $product->getLockedQuantity()) {
+        //item.quantity + item.product.quantity - item.product.lockedQuantity
+        //If quantity requested is higher than (item's previous quantity + actual quantity - reserved quantity)...
+        if ($requestedQuantity > $this->getQuantity() + $product->getQuantity() - $product->getLockedQuantity()) {
             throw new \InvalidArgumentException("Requested quantity by cart exceeded available quantity");
         }
 
