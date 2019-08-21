@@ -27,6 +27,13 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    authentication_success_handler:
+        class: App\Event\Security\AuthenticationSuccessHandler
+        arguments:
+            - "@security.http_utils"
+            - []
+            - "@doctrine.orm.entity_manager"
+
     twilio.client:
         class: Twilio\Rest\Client
         arguments: ['%twilio_sid%', '%twilio_token%']

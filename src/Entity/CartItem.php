@@ -89,7 +89,7 @@ class CartItem
         $product = $this->product;
         //item.quantity + item.product.quantity - item.product.lockedQuantity
         //If quantity requested is higher than (item's previous quantity + actual quantity - reserved quantity)...
-        if ($requestedQuantity > $this->getQuantity() + $product->getQuantity() - $product->getLockedQuantity()) {
+        if ($requestedQuantity > $this->getQuantity() + $product->getAvailableQuantity()) {
             throw new \InvalidArgumentException("Requested quantity by cart exceeded available quantity");
         }
 

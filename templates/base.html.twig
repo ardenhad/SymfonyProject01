@@ -27,13 +27,13 @@
 
             <div class="order-2 order-md-1">
                 <ul class="navbar-nav px-3">
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link" href="{{ path('cart_index') }}">
+                            My Cart
+                        </a>
+                    </li>
                     {% if is_granted('ROLE_USER') %}
                         {# cart for user only, for now#}
-                        <li class="nav-item text-nowrap">
-                            <a class="nav-link" href="{{ path('cart_index') }}">
-                                My Cart
-                            </a>
-                        </li>
                         <li class="nav-item text-nowrap">
                             <a class="nav-link" href="{{ path("product_ownerProducts", {"username": app.user.username}) }}">{{ app.user.username }}</a>
                         </li>

@@ -195,4 +195,12 @@ class Product
     {
         $this->lockedQuantity = $lockedQuantity;
     }
+
+    /**
+     * @return integer
+     */
+    public function getAvailableQuantity()
+    {
+        return $this->getQuantity() - $this->getLockedQuantity();
+    }
 }

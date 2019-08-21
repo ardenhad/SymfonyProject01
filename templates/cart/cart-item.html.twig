@@ -1,20 +1,32 @@
 {% block body %}
-    {# Available stock = quantity in current user cart + total quantity - quantity in other users cart #}
-    {% set availableStock = item.quantity + item.product.quantity - item.product.lockedQuantity %}
+    {% if app.user %}
+        {% set product = item.product %}
+    {% endif %}
+    {% set itemQuantity = 0 %}
+    {% if item is defined %}
+        {% set itemQuantity = item.quantity %}
+    {% endif %}
+    {% if app.user %} {# In case of app.user database locks product quantity so we +item.quantity instead of -item.quantity #}
+        {# Available stock = (total quantity - quantity in other users cart) + quantity in current user cart #}
+        {% set availableStock = product.getAvailableQuantity() + itemQuantity %}
+    {% else %}
+        {# Available stock = (total quantity - quantity in other users cart)#}
+        {% set availableStock = product.getAvailableQuantity() %}
+    {% endif %}
     <div class="media text-muted pt-3">
         <span class="d-block">
             <ul>
-               <a href="{{ path('product_product', {'id': item.product.id }) }}">
-                   <li class="text-xl-left">Product: {{ item.product.name }}</li>
+               <a href="{{ path('product_product', {'id': product.id }) }}">
+                   <li class="text-xl-left">Product: {{ product.name }}</li>
                    <li class="text-xl-left">Cart Price: ${{ item.price }}</li>
-                   <li class="text-xl-left">Current Price: ${{ item.product.price }}</li>
-                   <li class="text-xl-left">By: {{ item.product.owner.username }}</li>
-                   <li class="text-xl-left">Count: {{ item.quantity }}</li>
+                   <li class="text-xl-left">Current Price: ${{ product.price }}</li>
+                   <li class="text-xl-left">By: {{ product.owner.username }}</li>
+                   <li class="text-xl-left">Count: {{ itemQuantity }}</li>
                    <li class="text-xl-left">Available Stock: {{ availableStock }}</li>
                </a>
             </ul>
             <br/>
-            {{ include ("cart/cart-item-shift-button.html.twig", {"product": item.product}) }}
+            {{ include ("cart/cart-item-shift-button.html.twig", {"item": item, "product": product}) }}
         </span>
     </div>
 {% endblock %}

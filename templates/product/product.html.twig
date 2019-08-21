@@ -8,7 +8,8 @@
                 <li class="text-xl-left">Price: ${{ product.price }}</li>
                 <li class="text-xl-left">By: {{ product.owner.username }}</li>
                 <li class="text-xl-left">Status: {{ product.status }}</li>
-                <li class="text-xl-left">Quantity: {{ product.quantity }}</li>
+                <li class="text-xl-left">Available Stock: {{ product.getAvailableQuantity() }}</li>
+                <li class="text-xl-left">In Stock: {{ product.quantity }}</li>
                 <li class="text-xl-left">Created: {{ product.dateCreated|date }}</li>
                 <li class="text-xl-left">Last Updated: {{ product.dateUpdated|date }}</li>
         </ul>

@@ -7,9 +7,10 @@ namespace App\Controller;
 use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\User;
+use App\Repository\CartItemRepository;
+use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use App\Service\Security as ServiceSecurity;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,10 +27,20 @@ class CartController extends AbstractController
      */
     private $userRepository;
     private $security;
+    /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+    /**
+     * @var CartItemRepository
+     */
+    private $cartItemRepository;
 
-    public function __construct(UserRepository $userRepository, Security $security, SessionInterface $session)
+    public function __construct(UserRepository $userRepository, ProductRepository $productRepository, CartItemRepository $cartItemRepository, Security $security)
     {
         $this->userRepository = $userRepository;
+        $this->productRepository = $productRepository;
+        $this->cartItemRepository = $cartItemRepository;
         $this->security = $security;
     }
 
@@ -40,15 +51,22 @@ class CartController extends AbstractController
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        if (is_null($user)) {
-            //TODO: Retrieve cart from session.
-            $cart = [];
-        } else {
+        $isUserRegistered = ServiceSecurity::isUserRegistered($user);
+        $products = null;
+        if ($isUserRegistered) {
             $cart = $user->getCartItems();
-        }
+        } else {
+            $cart = ($request->getSession()->get("cart"));
+            if (is_array($cart)) {
+                $cart = array_reverse($cart);
+            }
 
+            $products = $this->productRepository->findAll();
+
+        }
         return new Response($this->renderView("cart/cart-view.html.twig", [
             "cart" => $cart,
+            "products" => $products
 
         ]));
     }
@@ -60,10 +78,10 @@ class CartController extends AbstractController
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $quantity = $request->get("quantity");
+
         if ($isUserRegistered) {
             //TODO: Maybe let's bind this to session as well till user leaves, relieves db a bit(if user buys before end of session)...
             $cartItem = new CartItem;
-
             $cartItem->setUser($user);
             $cartItem->setProduct($product);
             $cartItem->setQuantity($quantity);
@@ -76,15 +94,25 @@ class CartController extends AbstractController
 
             $this->addFlash("notice", "Item has been successfully added to your cart");
         } else {
-            //TODO: Add to session cart.
+            if ($quantity <= $product->getAvailableQuantity()) {
+
+                $cart = $request->getSession()->get("cart");
+                if (is_null($cart)) {
+                    $cart = [];
+                };
+                array_push($cart,
+                    ["id" => $product->getId(), "quantity" => $quantity, "price" => $product->getPrice()]
+                );
+                $request->getSession()->set("cart", $cart);
+            }
         }
         return $this->redirectToRoute("cart_index");
     }
 
     /**
-     * @Route("/edit/{cartItem}", name="cart_editItem", methods={"GET", "POST"})
+     * @Route("/edit/{id}", name="cart_editItem", methods={"GET", "POST"})
      */
-    public function editCartItem(Request $request, CartItem $cartItem)
+    public function editCartItem(Request $request, $id)
     {
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
@@ -92,6 +120,9 @@ class CartController extends AbstractController
 
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
+            //For registered user, check cart item id.
+            $cartItem = $this->cartItemRepository->find($id);
+
             $cartItem->setQuantity($quantity);
 
             $entityManager = $this->getDoctrine()->getManager();
@@ -100,21 +131,31 @@ class CartController extends AbstractController
 
             $this->addFlash("notice", "Item count has been successfully modified");
         } else {
-            //TODO: Edit session cartItem.
+            //For anonymous user, check product id.
+            $product = $this->productRepository->find($id);
+
+            $cart = $request->getSession()->get("cart");
+
+            $idColumn = array_column($cart, "id");
+            $index = array_search($product->getId(), $idColumn);
+            $cart[$index]["quantity"] = $quantity;
+
+            $request->getSession()->set("cart", $cart);
         }
 
         return $this->redirectToRoute("cart_index");
     }
 
     /**
-     * @Route("/delete/{cartItem}", name="cart_deleteItem")
+     * @Route("/delete/{id}", name="cart_deleteItem")
      */
-    public function deleteCartItem(Request $request, CartItem $cartItem)
+    public function deleteCartItem(Request $request, $id)
     {
-
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         if ($isUserRegistered) {
+            //For registered user, check cart item id.
+            $cartItem = $this->cartItemRepository->find($id);
             $entityManager = $this->getDoctrine()->getManager();
 
             $entityManager->remove($cartItem);
@@ -122,7 +163,18 @@ class CartController extends AbstractController
 
             $this->addFlash("notice", "Item has been successfully removed from your cart.");
         } else {
-            //TODO: Delete cartItem from session.
+            //For anonymous user, check product id.
+            $product = $this->productRepository->find($id);
+
+            $cart = $request->getSession()->get("cart");
+
+            $idColumn = array_column($cart, "id");
+            $index = array_search($product->getId(), $idColumn);
+
+            unset($cart[$index]);
+            $cart = array_values($cart);
+
+            $request->getSession()->set("cart", $cart);
         }
 
         return $this->redirectToRoute("cart_index");

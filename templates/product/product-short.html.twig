@@ -7,6 +7,7 @@
                        <li class="text-xl-left">Product: {{ product.name }}</li>
                        <li class="text-xl-left">Price: ${{ product.price }}</li>
                        <li class="text-xl-left">By: {{ product.owner.username }}</li>
+                       <li class="text-xl-left">Available stock: {{ product.getAvailableQuantity() }}</li>
                        <li class="text-xl-left">In stock: {{ product.quantity }}</li>
                    </div>
                </a>

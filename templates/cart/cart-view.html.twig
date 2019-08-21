@@ -6,7 +6,15 @@
             <ul style="padding-left:0px">
             {% for item in cart %}
                 <li style="list-style-type:none; margin-bottom:30px; margin-top:30px">
-                    {{ include("cart/cart-item.html.twig", {"item": item}) }}
+                    {% if app.user %}
+                        {{ include("cart/cart-item.html.twig", {"item": item}) }}
+                    {% else %}
+                        {% for product in products %}
+                            {% if item.id == product.id %}
+                                {{ include("cart/cart-item.html.twig", {"item": item, "product": product}) }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                 </li>
                 <hr>
             {% endfor %}

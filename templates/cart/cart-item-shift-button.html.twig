@@ -1,21 +1,28 @@
 {% if not is_granted("edit", product) %}
     {# Available stock = quantity in current user cart + total quantity - quantity in other users cart #}
-    {% if item is defined %}
-        {# Called from Cart pages, item must be defined here. #}
-        {% set availableStock = item.quantity + item.product.quantity - item.product.lockedQuantity %}
-    {% else %}
+    {% if item is not defined %}
         {# Called from Product pages, product must be defined here. item.quantity = 0 in this case. #}
         {% set availableStock = product.quantity - product.lockedQuantity %}
     {% endif %}
     {# Find out if user has the product in their cart. #}
     {% set isProductInCart = false %}
     {% set itemId = -1 %}
-    {% for cartItem in app.user.cartItems if not isProductInCart %}
-        {% if cartItem.product is same as(product) %}
-            {% set isProductInCart = true %}
-            {% set itemId = cartItem.id %}
-        {% endif %}
-    {% endfor %}
+    {% if app.user %}
+        {% for cartItem in app.user.cartItems if not isProductInCart %}
+            {% if cartItem.product is same as(product) %}
+                {% set isProductInCart = true %}
+                {% set itemId = cartItem.id %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% set cart = app.session.get("cart") %}
+        {% for cartItem in cart if not isProductInCart %}
+            {% if cartItem.id == product.id %}
+                {% set isProductInCart = true %}
+                {% set itemId = product.id %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
     {% if isProductInCart %}
         {% if app.request.pathInfo is same as("/cart")%}
             <form>
@@ -28,12 +35,12 @@
                         <input id="button" value="Edit Count" type="submit" onclick="editCartItem({{ itemId }})" class="btn btn-primary">
                     </div>
                     <div class="input-group-append">
-                        <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"cartItem": itemId}) }}" >Remove from Cart</a>
+                        <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"id": itemId}) }}" >Remove from Cart</a>
                     </div>
                 </div>
             </form>
         {% else %}
-            <a style="margin-left:40px" href="{{ path('cart_deleteItem', {"cartItem": itemId}) }}" class="btn btn-secondary">Remove from Cart</a>
+            <a style="margin-left:40px" href="{{ path('cart_deleteItem', {"id": itemId}) }}" class="btn btn-secondary">Remove from Cart</a>
         {% endif %}
     {% else %}
         <form action="/cart">
@@ -41,14 +48,9 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text">#</span>
                 </div>
-                {% if product is defined %}
-                    {% set productId = product.id %}
-                {% else %}
-                    {% set productId = item.product.id %}
-                {% endif %}
-                <input id="quantity_{{ productId }}" type="number" class="form-control" min="1" max="{{ availableStock }}">
+                <input id="quantity_{{ product.id }}" type="number" class="form-control" min="1" max="{{ availableStock }}">
                 <div class="input-group-append">
-                    <input id="button" type="submit" value="Add to Cart" onclick="addToCart({{ productId }})" class="btn btn-primary">
+                    <input id="button" type="submit" value="Add to Cart" onclick="addToCart({{ product.id }})" class="btn btn-primary">
                 </div>
             </div>
         </form>
