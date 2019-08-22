@@ -7,9 +7,6 @@ namespace App\Controller;
 use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\User;
-use App\Repository\CartItemRepository;
-use App\Repository\ProductRepository;
-use App\Repository\UserRepository;
 use App\Service\Security as ServiceSecurity;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,25 +19,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CartController extends AbstractController
 {
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
     private $security;
-    /**
-     * @var ProductRepository
-     */
-    private $productRepository;
-    /**
-     * @var CartItemRepository
-     */
-    private $cartItemRepository;
 
-    public function __construct(UserRepository $userRepository, ProductRepository $productRepository, CartItemRepository $cartItemRepository, Security $security)
+    public function __construct(Security $security)
     {
-        $this->userRepository = $userRepository;
-        $this->productRepository = $productRepository;
-        $this->cartItemRepository = $cartItemRepository;
         $this->security = $security;
     }
 
@@ -60,8 +42,9 @@ class CartController extends AbstractController
             if (is_array($cart)) {
                 $cart = array_reverse($cart);
             }
-
-            $products = $this->productRepository->findAll();
+            $entityManager = $this->getDoctrine()->getManager();
+            $productRepository = $entityManager->getRepository(Product::class);
+            $products = $productRepository->findAll();
 
         }
         return new Response($this->renderView("cart/cart-view.html.twig", [
@@ -92,7 +75,6 @@ class CartController extends AbstractController
             $entityManager->persist($cartItem);
             $entityManager->flush();
 
-            $this->addFlash("notice", "Item has been successfully added to your cart");
         } else {
             if ($quantity <= $product->getAvailableQuantity()) {
 
@@ -106,6 +88,8 @@ class CartController extends AbstractController
                 $request->getSession()->set("cart", $cart);
             }
         }
+        $this->addFlash("notice", "Item has been successfully added to your cart");
+
         return $this->redirectToRoute("cart_index");
     }
 
@@ -118,21 +102,23 @@ class CartController extends AbstractController
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $quantity = $request->get("quantity");
 
+        $entityManager = $this->getDoctrine()->getManager();
+
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
             //For registered user, check cart item id.
-            $cartItem = $this->cartItemRepository->find($id);
+            $cartItem = $entityManager->getRepository(Product::class)->find($id);
 
             $cartItem->setQuantity($quantity);
 
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($cartItem);
             $entityManager->flush();
 
-            $this->addFlash("notice", "Item count has been successfully modified");
         } else {
             //For anonymous user, check product id.
-            $product = $this->productRepository->find($id);
+            $productRepository = $entityManager->getRepository(Product::class);
+
+            $product = $productRepository->find($id);
 
             $cart = $request->getSession()->get("cart");
 
@@ -142,6 +128,7 @@ class CartController extends AbstractController
 
             $request->getSession()->set("cart", $cart);
         }
+        $this->addFlash("notice", "Item count has been successfully modified");
 
         return $this->redirectToRoute("cart_index");
     }
@@ -153,18 +140,19 @@ class CartController extends AbstractController
     {
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
         if ($isUserRegistered) {
             //For registered user, check cart item id.
-            $cartItem = $this->cartItemRepository->find($id);
+            $cartItem = $entityManager->getRepository(CartItem::class)->find($id);
             $entityManager = $this->getDoctrine()->getManager();
 
             $entityManager->remove($cartItem);
             $entityManager->flush();
-
-            $this->addFlash("notice", "Item has been successfully removed from your cart.");
         } else {
             //For anonymous user, check product id.
-            $product = $this->productRepository->find($id);
+            $product = $entityManager->getRepository(Product::class)->find($id);
 
             $cart = $request->getSession()->get("cart");
 
@@ -176,8 +164,10 @@ class CartController extends AbstractController
 
             $request->getSession()->set("cart", $cart);
         }
+        $this->addFlash("notice", "Item has been successfully removed from your cart.");
 
         return $this->redirectToRoute("cart_index");
     }
+
 
 }

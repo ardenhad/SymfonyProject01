@@ -31,7 +31,6 @@ services:
         class: App\Event\Security\AuthenticationSuccessHandler
         arguments:
             - "@security.http_utils"
-            - []
             - "@doctrine.orm.entity_manager"
 
     twilio.client:
