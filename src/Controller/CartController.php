@@ -130,7 +130,7 @@ class CartController extends AbstractController
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
             //For registered user, check cart item id.
-            $cartItem = $entityManager->getRepository(Product::class)->find($id);
+            $cartItem = $entityManager->getRepository(CartItem::class)->find($id);
 
             $cartItem->setQuantity($quantity);
 

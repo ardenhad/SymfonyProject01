@@ -79,14 +79,11 @@
     <script>
         function editCartItem(id, isNew = false) {
             let element = $('#quantity_'+id);
-            let quantity = element.val();
-            let min = element.attr("min");
-            let max = element.attr("max");
-
-            // console.log(quantity);
+            let quantity = parseInt(element.val());
+            let min = parseInt(element.attr("min"));
+            let max = parseInt(element.attr("max"));
 
             if (quantity < min || quantity > max) {
-                //proper quantity input still leads to here in rare occasions, cant reproduce.
                 alert("Quantity must be between " + min + " and " + max);
                 return;
             }
