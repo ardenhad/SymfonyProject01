@@ -25,35 +25,31 @@
     {% endif %}
     {% if isProductInCart %}
         {% if app.request.pathInfo is same as("/cart")%}
-            <form>
-                <div class="input-group mb-1">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">#</span>
-                    </div>
-                    <input id="quantity_{{ itemId }}" type="number" class="form-control" min="1" max="{{ availableStock }}" value="{{ item.quantity }}">
-                    <div class="input-group-append">
-                        <input id="button" value="Edit Count" type="submit" onclick="editCartItem({{ itemId }})" class="btn btn-primary">
-                    </div>
-                    <div class="input-group-append">
-                        <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"id": itemId}) }}" >Remove from Cart</a>
-                    </div>
+            <div class="input-group mb-1">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">#</span>
                 </div>
-            </form>
+                <input id="quantity_{{ itemId }}" type="number" class="form-control" min="1" max="{{ availableStock }}" value="{{ item.quantity }}">
+                <div class="input-group-append">
+                    <input id="button" value="Edit Count" type="submit" onclick="editCartItem({{ itemId }})" class="btn btn-primary">
+                </div>
+                <div class="input-group-append">
+                    <a class="btn btn-secondary" href="{{ path('cart_deleteItem', {"id": itemId}) }}" >Remove from Cart</a>
+                </div>
+            </div>
         {% else %}
             <a style="margin-left:40px" href="{{ path('cart_deleteItem', {"id": itemId}) }}" class="btn btn-secondary">Remove from Cart</a>
         {% endif %}
     {% else %}
-        <form action="/cart">
             <div class="input-group mb-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text">#</span>
                 </div>
                 <input id="quantity_{{ product.id }}" type="number" class="form-control" min="1" max="{{ availableStock }}">
                 <div class="input-group-append">
-                    <input id="button" type="submit" value="Add to Cart" onclick="addToCart({{ product.id }})" class="btn btn-primary">
+                    <input id="button" type="submit" value="Add to Cart" onclick="editCartItem({{ product.id }}, true)" class="btn btn-primary">
                 </div>
             </div>
-        </form>
     {% endif %}
 {% endif %}
 

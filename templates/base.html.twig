@@ -77,38 +77,32 @@
     </body>
 
     <script>
+        function editCartItem(id, isNew = false) {
+            let element = $('#quantity_'+id);
+            let quantity = element.val();
+            let min = element.attr("min");
+            let max = element.attr("max");
 
-        function addToCart(id) {
+            // console.log(quantity);
 
-            let quantity = $('#quantity_'+id).val();
+            if (quantity < min || quantity > max) {
+                //proper quantity input still leads to here in rare occasions, cant reproduce.
+                alert("Quantity must be between " + min + " and " + max);
+                return;
+            }
 
-            $.ajax({
-                url: "/cart/add/"+id,
-                type: "post",
-                datatype: "json",
-                data: { quantity: quantity },
-                success: function (response) {
-                    console.log(response);
-                    // window.location.href = '/cart';
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log(textStatus, errorThrown);
-                }
-            });
-        }
-
-        function editCartItem(id) {
-
-            let quantity = $('#quantity_'+id).val();
+            let url = "cart/edit/" + id;
+            if (isNew)
+                url = "cart/add/" + id;
 
             $.ajax({
-                url: "/cart/edit/"+id,
+                url: url,
                 type: "post",
                 datatype: "json",
-                data: { quantity: quantity },
+                data: {quantity: quantity},
                 success: function (response) {
                     console.log(response);
-                    // window.location.href = "/cart";
+                    window.location.href = "/cart";
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(textStatus, errorThrown);
