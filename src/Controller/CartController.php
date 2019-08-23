@@ -91,14 +91,17 @@ class CartController extends AbstractController
             $cart = $request->getSession()->get("cart");
 
             $sameItemExists = false;
-            forEach ($cart as $cartItem) {
-                if ($cartItem["id"] == $product->getId() && $cartItem["price"] == $product->getPrice()) {
-                    $sameItemExists = true;
-                }
-            }
 
-            if ($sameItemExists) {
-                throw new \InvalidArgumentException("Item already exists in cart.");
+            if (!is_null($cart)) {
+                forEach ($cart as $cartItem) {
+                    if ($cartItem["id"] == $product->getId() && $cartItem["price"] == $product->getPrice()) {
+                        $sameItemExists = true;
+                    }
+                }
+
+                if ($sameItemExists) {
+                    throw new \InvalidArgumentException("Item already exists in cart.");
+                }
             }
 
             if ($quantity <= $product->getAvailableQuantity()) {

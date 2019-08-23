@@ -20,13 +20,14 @@ class ProductTest extends WebTestCase
         $this->client = static::createClient();
         $this->client->disableReboot();
         $this->em = $this->client->getContainer()->get("doctrine.orm.entity_manager");
+        //$this->em->getConnection()->setAutoCommit(false);
         $this->em->beginTransaction();
-        $this->em->getConnection()->setAutoCommit(false);
     }
 
     public function tearDown()
     {
         $this->em->rollback();
+        //$this->em->getConnection()->setAutoCommit(true);
     }
 
     /**
@@ -35,8 +36,7 @@ class ProductTest extends WebTestCase
      */
     public function testPublicPageNonRegisteredUserIsSuccessful($url)
     {
-        $client = self::createClient();
-        $client->request("GET", $url);
+        $this->client->request("GET", $url);
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -161,7 +161,9 @@ class ProductTest extends WebTestCase
     {
         $this->loginTestAccount("Alex", "alex123");
         $client = $this->client;
-        $client->request("GET", "/products/delete/142");
+
+        $productId = $this->setupProduct($productCreateData);
+        $client->request("GET", "/products/delete/".$productId);
 
         $this->assertResponseStatusCodeSame(302);
         $client->followRedirect();
@@ -169,16 +171,16 @@ class ProductTest extends WebTestCase
         $uri = $client->getRequest()->getRequestUri();
         $this->assertSame("/products", $uri);
 
-        $client->request("GET","/products/product/142");
+        $client->request("GET","/products/product/".$productId);
         $this->assertResponseStatusCodeSame(404);
 
     }
 
     public function provideSetupData() {
         return [
-            [["violin", "250", "new"], ["violin", "200", "new"]],
-            [["dishwasher", "750", "used"],["dishwasher", "800", "new"]],
-            [["laptop", "1100", "used"], ["computer", "1200", "used"]]
+            [["violin", "250", "new", "2000"], ["violin", "200", "new", "2000"]],
+            [["dishwasher", "750", "used", "3000"],["dishwasher", "800", "new", "3500"]],
+            [["laptop", "1100", "used","4000"], ["computer", "1200", "used", "5000"]]
         ];
     }
 
@@ -226,19 +228,21 @@ class ProductTest extends WebTestCase
     public function setupProduct($productSetupData,  $productId = -1)
     {
 
-        [$productName, $price, $status] = $productSetupData;
+        [$productName, $price, $status, $quantity] = $productSetupData;
 
         $client = $this->client;
         $client->followRedirects(true);
-        if ($productId === -1)
+        if ($productId === -1){
             $client->request("GET", "/products/create");
-        else
+        } else{
             $client->request("GET", "/products/edit/".$productId);
+        }
 
         $client->submitForm("product[Register]", [
             "product[name]" => $productName,
             "product[price]" => $price,
-            "product[status]" => $status
+            "product[status]" => $status,
+            "product[quantity]" => $quantity
         ]);
 
         $uri = $client->getRequest()->getRequestUri();

@@ -49,7 +49,6 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
 
         if (!is_null($sessionCart) && sizeof($sessionCart) > 0) {
             //We are not leaving any cartItem behind!
-            $entityManager->getConnection()->setAutoCommit(false);
             $entityManager->getConnection()->beginTransaction();
         }
 
@@ -111,28 +110,25 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
                     $cartItemEntity->setPrice($product_price);
                 }
 
-                try {
-                    $entityManager->persist($cartItemEntity);
-                    $entityManager->flush();
-                } catch (ORMException $e) {
-                    $dbTransactionSuccessful = false;
-                    var_dump("ORM Exception: ".$e);
-                    die;
+                if (!is_null($cartItemEntity)) {
+                    try {
+                        $entityManager->persist($cartItemEntity);
+                        $entityManager->flush();
+                    } catch (ORMException $e) {
+                        $dbTransactionSuccessful = false;
+                        var_dump("ORM Exception: " . $e);
+                        die;
+                    }
                 }
             }
         }
 
         try {
             if (!is_null($sessionCart) && sizeof($sessionCart) > 0) {
-                if ($dbTransactionSuccessful) {
-                    $entityManager->getConnection()->commit();
-                } else {
+                if (!$dbTransactionSuccessful)
                     $entityManager->getConnection()->rollback();
-                }
             }
-            $entityManager->getConnection()->setAutoCommit(true);
         } catch (ConnectionException $e) {
-            $entityManager->getConnection()->setAutoCommit(true);
             var_dump("Connection exception: ".$e);
             die;
         }
