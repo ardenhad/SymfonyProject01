@@ -47,18 +47,17 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
         $entityManager = $this->entityManager;
         $dbTransactionSuccessful = true;
 
-        //TODO: Check if any session cartItem belongs to user. X Test Successful
-        //TODO: Check if any session cartItem intersects with user cartItems. X Test Successful
-        //TODO: Check if product still exists. X Test Successful
-        //TODO: Check if quantity can still be locked. X Test Successful
+        if (!is_null($sessionCart) && sizeof($sessionCart) > 0) {
+            //We are not leaving any cartItem behind!
+            $entityManager->getConnection()->setAutoCommit(false);
+            $entityManager->getConnection()->beginTransaction();
+        }
+
         if (is_array($sessionCart)) {
             $cartItemRepository = $entityManager->getRepository(CartItem::class);
             $productRepository = $entityManager->getRepository(Product::class);
 
             forEach ($sessionCart as $sessionCartItem) {
-                //We are not leaving any cartItem behind!
-                $entityManager->getConnection()->setAutoCommit(false);
-                $entityManager->getConnection()->beginTransaction();
 
 
                 //Find the product mentioned in session.
@@ -80,8 +79,9 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
                     continue;
                 }
 
+                $cartItemEntity = null;
+                $samePriceCartItemExists = false;
                 if (sizeof($cart) > 0) {
-                    $samePriceCartItemExists = false;
                     foreach ($cart as $cartItemEntity) {
                         if ($sessionCartItem["price"] == $cartItemEntity->getPrice()) {
                             //Same price, just update this one.
@@ -123,16 +123,18 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
         }
 
         try {
-            if ($dbTransactionSuccessful) {
-                $entityManager->getConnection()->commit();
-            } else {
-                $entityManager->getConnection()->rollback();
+            if (!is_null($sessionCart) && sizeof($sessionCart) > 0) {
+                if ($dbTransactionSuccessful) {
+                    $entityManager->getConnection()->commit();
+                } else {
+                    $entityManager->getConnection()->rollback();
+                }
             }
+            $entityManager->getConnection()->setAutoCommit(true);
         } catch (ConnectionException $e) {
+            $entityManager->getConnection()->setAutoCommit(true);
             var_dump("Connection exception: ".$e);
             die;
-        } finally {
-            $entityManager->getConnection()->setAutoCommit(true);
         }
         //NOTE: Looks like it auto-deletes session variables after login.
         return parent::onAuthenticationSuccess($request, $token);
