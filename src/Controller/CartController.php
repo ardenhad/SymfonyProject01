@@ -64,21 +64,44 @@ class CartController extends AbstractController
 
         if ($isUserRegistered) {
             //TODO: Maybe let's bind this to session as well till user leaves, relieves db a bit(if user buys before end of session)...
+            $entityManager = $this->getDoctrine()->getManager();
+            $cartItemRepository = $entityManager->getRepository(CartItem::class);
+
+            //Check if such item exists.
+            $sameItem = $cartItemRepository->findOneBy([
+                "product" => $product,
+                "user" => $user,
+                "price" => $product->getPrice()
+            ]);
+
+            if (!is_null($sameItem)) {
+                throw new \InvalidArgumentException("Item already exists in cart.");
+            }
+
             $cartItem = new CartItem;
             $cartItem->setUser($user);
             $cartItem->setProduct($product);
             $cartItem->setQuantity($quantity);
             $cartItem->setPrice($product->getPrice());
 
-            $entityManager = $this->getDoctrine()->getManager();
-
             $entityManager->persist($cartItem);
             $entityManager->flush();
 
         } else {
-            if ($quantity <= $product->getAvailableQuantity()) {
+            $cart = $request->getSession()->get("cart");
 
-                $cart = $request->getSession()->get("cart");
+            $sameItemExists = false;
+            forEach ($cart as $cartItem) {
+                if ($cartItem["id"] == $product->getId() && $cartItem["price"] == $product->getPrice()) {
+                    $sameItemExists = true;
+                }
+            }
+
+            if ($sameItemExists) {
+                throw new \InvalidArgumentException("Item already exists in cart.");
+            }
+
+            if ($quantity <= $product->getAvailableQuantity()) {
                 if (is_null($cart)) {
                     $cart = [];
                 };
