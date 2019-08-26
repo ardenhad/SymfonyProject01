@@ -35,6 +35,7 @@ class CartController extends AbstractController
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $products = null;
+        //TODO: Revert PersistentCollection.
         if ($isUserRegistered) {
             $cart = $user->getCartItems();
         } else {

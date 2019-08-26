@@ -125,7 +125,7 @@ class AppFixtures extends Fixture
         for ($i = 0; $i < 30; $i++) {
             $product = new Product();
             $productName = self::PRODUCT_NAMES[rand(0, count(self::PRODUCT_NAMES) - 1)];
-            $productOwner = $this->getReference(self::USERS[rand(0, count(self::USERS) - 1)]["username"]);
+            $productOwner = $this->getReference(self::USERS[rand(1, count(self::USERS) - 1)]["username"]);
             $productPrice = rand(1, 10000);
             $productQuantity = rand(1, 1000);
 
@@ -139,7 +139,7 @@ class AppFixtures extends Fixture
             $date = $date->modify("-".rand(0,10) . "day");
             $product->setDateCreated($date);
 
-            $product->setStatus(self::PRODUCT_STATUS[rand(0, count(self::PRODUCT_STATUS) - 1)]);
+            $product->setStatus(self::PRODUCT_STATUS[rand(1, count(self::PRODUCT_STATUS) - 1)]);
             $manager->persist($product);
             if (rand(0, 10) > 4) {
                 if ($productQuantity === $product->getLockedQuantity()) {

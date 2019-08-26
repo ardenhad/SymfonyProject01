@@ -238,7 +238,7 @@ class ProductTest extends WebTestCase
         $client->request("GET", "/logout");
     }
 
-    public function loginTestAccount($username = "phpUnitTestUser", $password = "unitTest") {
+    public function loginTestAccount($username = self::USER1_TEST_USERNAME, $password = self::USER1_TEST_PASSWORD) {
         $this->login($username, $password);
     }
 
