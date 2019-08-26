@@ -30,8 +30,23 @@ class AppFixtures extends Fixture
              "password" => "stacy123",
              "phone" => "003",
              "roles" => [User::ROLE_USER]
-         ]
+         ],
     ];
+
+     private CONST TEST_USERS = [
+         [
+             "username" => "phpUnitTestUser1",
+             "password" => "unitTest1",
+             "phone" => "000000001",
+             "roles" => [User::ROLE_USER]
+         ],
+         [
+             "username" => "phpUnitTestUser2",
+             "password" => "unitTest2",
+             "phone" => "000000002",
+             "roles" => [User::ROLE_USER]
+         ],
+     ];
 
      private const PRODUCT_NAMES = [
          "chair",
@@ -66,12 +81,14 @@ class AppFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
-        $this->loadUsers($manager);
+        $this->loadSimulationUsers($manager);
+        $this->loadTestUsers($manager);
         $this->loadProductsAndCartItems($manager);
     }
 
-    public function loadUsers(ObjectManager $manager) {
-        forEach (self::USERS as $userData) {
+    public function loadUsers(ObjectManager $manager, $userArray)
+    {
+        forEach ($userArray as $userData) {
             $user = new User();
             $user->setUsername($userData["username"]);
             ["password"];
@@ -93,7 +110,18 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    public function loadProductsAndCartItems(ObjectManager $manager) {
+    public function loadSimulationUsers(ObjectManager $manager)
+    {
+        $this->loadUsers($manager, self::USERS);
+    }
+
+    public function loadTestUsers(ObjectManager $manager)
+    {
+        $this->loadUsers($manager, self::TEST_USERS);
+    }
+
+    public function loadProductsAndCartItems(ObjectManager $manager)
+    {
         for ($i = 0; $i < 30; $i++) {
             $product = new Product();
             $productName = self::PRODUCT_NAMES[rand(0, count(self::PRODUCT_NAMES) - 1)];

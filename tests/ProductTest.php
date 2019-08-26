@@ -10,6 +10,11 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ProductTest extends WebTestCase
 {
+    const USER1_TEST_USERNAME = "phpUnitTestUser1";
+    const USER1_TEST_PASSWORD = "unitTest1";
+    const USER2_TEST_USERNAME = "phpUnitTestUser2";
+    const USER2_TEST_PASSWORD = "unitTest2";
+
     /** @var KernelBrowser */
     private $client = null;
     /** @var EntityManager */
@@ -41,17 +46,6 @@ class ProductTest extends WebTestCase
     }
 
     /**
-     * @dataProvider providePublicUrls
-     * @dataProvider providePrivateUrls
-     */
-    public function testPageRegisteredUserIsSuccessful($url)
-    {
-        $this->loginTestAccount();
-        $this->client->request("GET", $url);
-        $this->assertResponseIsSuccessful();
-    }
-
-    /**
      * @dataProvider providePrivateUrls
      */
     public function testPrivatePageNonRegisteredUserIsRedirectedToLogin($url)
@@ -60,7 +54,7 @@ class ProductTest extends WebTestCase
         $client->request("GET", $url);
         $this->assertResponseStatusCodeSame(302);
 
-        $crawler = $client->followRedirect();
+        $client->followRedirect();
         $uri = $client->getRequest()->getRequestUri();
 
         $this->assertSame("/login", $uri);
@@ -93,13 +87,7 @@ class ProductTest extends WebTestCase
     }
 
     public function testSuccessfulLogin() {
-        $this->setUp();
-
-        $username = "Jack_Doe";
-        $password = "jack12345";
-
-        $this->register($username, $password, "333221");
-        $this->login($username, $password);
+        $this->loginTestAccount();
 
         $this->assertResponseStatusCodeSame(302);
 
@@ -112,6 +100,34 @@ class ProductTest extends WebTestCase
     }
 
     /**
+     * @depends testSuccessfulLogin
+     */
+    public function testSuccessfulLogout() {
+        $this->loginTestAccount();
+        $this->logout();
+
+        $client = $this->client;
+        $client->followRedirect();
+
+        $uri = $client->getRequest()->getRequestUri();
+
+        $this->assertSame("/products", $uri);
+    }
+
+    /**
+     * @depends testSuccessfulLogin
+     * @dataProvider providePublicUrls
+     * @dataProvider providePrivateUrls
+     */
+    public function testPageRegisteredUserIsSuccessful($url)
+    {
+        $this->loginTestAccount();
+        $this->client->request("GET", $url);
+        $this->assertResponseIsSuccessful();
+    }
+
+    /**
+     * @depends testSuccessfulLogin
      * @dataProvider provideSetupData
      */
     public function testRegisteredUserCreateProduct($productCreateData)
@@ -124,6 +140,7 @@ class ProductTest extends WebTestCase
     }
 
     /**
+     * @depends testSuccessfulLogin
      * @dataProvider provideSetupData
      */
     public function testUserViewProduct($productCreateData)
@@ -139,6 +156,8 @@ class ProductTest extends WebTestCase
     }
 
     /**
+     * @depends testSuccessfulLogin
+     * @depends testRegisteredUserCreateProduct
      * @dataProvider provideSetupData
      */
     public function testUserEditProduct($productCreateData, $productEditData)
@@ -155,11 +174,13 @@ class ProductTest extends WebTestCase
     }
 
     /**
+     * @depends testSuccessfulLogin
+     * @depends testRegisteredUserCreateProduct
      * @dataProvider provideSetupData
      */
     public function testUserDeleteProduct($productCreateData)
     {
-        $this->loginTestAccount("Alex", "alex123");
+        $this->loginTestAccount();
         $client = $this->client;
 
         $productId = $this->setupProduct($productCreateData);
@@ -181,14 +202,6 @@ class ProductTest extends WebTestCase
             [["violin", "250", "new", "2000"], ["violin", "200", "new", "2000"]],
             [["dishwasher", "750", "used", "3000"],["dishwasher", "800", "new", "3500"]],
             [["laptop", "1100", "used","4000"], ["computer", "1200", "used", "5000"]]
-        ];
-    }
-
-    public function provideAccountsBadCredentials() {
-        return [
-            ["IdontExist", "myPassDoesntExist", "135154166"],
-            ["Helloworld", "helloWorld", "12315355"],
-            ["wrongUsername", "wrongPassword", "123141351"]
         ];
     }
 
@@ -220,8 +233,12 @@ class ProductTest extends WebTestCase
         );
     }
 
-    public function loginTestAccount($username = "John_Doe", $password = "john12345") {
-        $this->register($username, $password, "192837465");
+    public function logout() {
+        $client = $this->client;
+        $client->request("GET", "/logout");
+    }
+
+    public function loginTestAccount($username = "phpUnitTestUser", $password = "unitTest") {
         $this->login($username, $password);
     }
 
