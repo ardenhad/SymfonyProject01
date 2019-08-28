@@ -8,6 +8,7 @@ use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Service\Security as ServiceSecurity;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,6 +64,10 @@ class CartController extends AbstractController
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $quantity = $request->get("quantity");
 
+        if ($quantity == 0 || $quantity > $product->getAvailableQuantity()) {
+            throw new \InvalidArgumentException("Item quantity exceeds available product quantity");
+        }
+
         if ($isUserRegistered) {
             //TODO: Maybe let's bind this to session as well till user leaves, relieves db a bit(if user buys before end of session)...
             $entityManager = $this->getDoctrine()->getManager();
@@ -105,15 +110,13 @@ class CartController extends AbstractController
                 }
             }
 
-            if ($quantity <= $product->getAvailableQuantity()) {
-                if (is_null($cart)) {
-                    $cart = [];
-                };
-                array_push($cart,
-                    ["id" => $product->getId(), "quantity" => $quantity, "price" => $product->getPrice()]
-                );
-                $request->getSession()->set("cart", $cart);
-            }
+            if (is_null($cart)) {
+                $cart = [];
+            };
+            array_push($cart,
+                ["id" => $product->getId(), "quantity" => $quantity, "price" => $product->getPrice()]
+            );
+            $request->getSession()->set("cart", $cart);
         }
         $this->addFlash("notice", "Item has been successfully added to your cart");
 
@@ -130,6 +133,12 @@ class CartController extends AbstractController
         $quantity = $request->get("quantity");
 
         $entityManager = $this->getDoctrine()->getManager();
+        $productRepository = $entityManager->getRepository(Product::class);
+        $product = $productRepository->find($id);
+
+        if ($quantity == 0) {
+            throw new \InvalidArgumentException("Item quantity exceeds available product quantity");
+        }
 
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
@@ -142,11 +151,6 @@ class CartController extends AbstractController
             $entityManager->flush();
 
         } else {
-            //For anonymous user, check product id.
-            $productRepository = $entityManager->getRepository(Product::class);
-
-            $product = $productRepository->find($id);
-
             $cart = $request->getSession()->get("cart");
 
             $idColumn = array_column($cart, "id");
