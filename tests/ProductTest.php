@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+//TODO: Adopt a test naming convention.
 class ProductTest extends WebTestCase
 {
     const USER1_TEST_USERNAME = "phpUnitTestUser1";

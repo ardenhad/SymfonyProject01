@@ -33,20 +33,13 @@ class AppFixtures extends Fixture
          ],
     ];
 
-     private CONST TEST_USERS = [
+     private const TEST_USER_DATA =
          [
-             "username" => "phpUnitTestUser1",
-             "password" => "unitTest1",
-             "phone" => "000000001",
+             "username" => "phpUnitTestUser_",
+             "password" => "unitTest_",
+             "phone" => "00000000",
              "roles" => [User::ROLE_USER]
-         ],
-         [
-             "username" => "phpUnitTestUser2",
-             "password" => "unitTest2",
-             "phone" => "000000002",
-             "roles" => [User::ROLE_USER]
-         ],
-     ];
+         ];
 
      private const PRODUCT_NAMES = [
          "chair",
@@ -81,14 +74,14 @@ class AppFixtures extends Fixture
      */
     public function load(ObjectManager $manager)
     {
-        $this->loadSimulationUsers($manager);
-        $this->loadTestUsers($manager);
+        $this->loadUsers($manager);
+        $this->loadTestUsers($manager, 5);
         $this->loadProductsAndCartItems($manager);
     }
 
-    public function loadUsers(ObjectManager $manager, $userArray)
+    public function loadUsers(ObjectManager $manager)
     {
-        forEach ($userArray as $userData) {
+        forEach (self::USERS as $userData) {
             $user = new User();
             $user->setUsername($userData["username"]);
             ["password"];
@@ -110,14 +103,27 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    public function loadSimulationUsers(ObjectManager $manager)
+    public function loadTestUsers(ObjectManager $manager, int $count)
     {
-        $this->loadUsers($manager, self::USERS);
-    }
+        //$this->loadUsers($manager, self::TEST_USERS);
+        for ($i = 1; $i <= 5; $i++ ) {
+            $user = new User();
+            $user->setUsername(self::TEST_USER_DATA["username"] . $i);
 
-    public function loadTestUsers(ObjectManager $manager)
-    {
-        $this->loadUsers($manager, self::TEST_USERS);
+            $password = $this->passwordEncoder->encodePassword(
+                $user,
+                self::TEST_USER_DATA["password"] . $i
+            );
+            $user->setPassword($password);
+
+            $user->setPhone(self::TEST_USER_DATA["phone"] . $i);
+            $user->setRoles(self::TEST_USER_DATA["roles"]);
+
+            $this->addReference(self::TEST_USER_DATA["username"] . $i, $user);
+
+            $manager->persist($user);
+        }
+
     }
 
     public function loadProductsAndCartItems(ObjectManager $manager)
