@@ -61,6 +61,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\CartItem", mappedBy="user")
+     * @ORM\OrderBy({"id" = "DESC"})
      */
     private $cartItems;
 

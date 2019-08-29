@@ -11,10 +11,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 //TODO: Adopt a test naming convention.
 class ProductTest extends WebTestCase
 {
-    const USER1_TEST_USERNAME = "phpUnitTestUser1";
-    const USER1_TEST_PASSWORD = "unitTest1";
-    const USER2_TEST_USERNAME = "phpUnitTestUser2";
-    const USER2_TEST_PASSWORD = "unitTest2";
+    const USER1_TEST_USERNAME = "phpUnitTestUser_1";
+    const USER1_TEST_PASSWORD = "unitTest_1";
+    const USER2_TEST_USERNAME = "phpUnitTestUser_2";
+    const USER2_TEST_PASSWORD = "unitTest_2";
 
     /** @var KernelBrowser */
     private $client = null;

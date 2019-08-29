@@ -255,6 +255,9 @@ class CartItemTest extends WebTestCase
         $this->assertEmpty($cart, "Deleted item still exists in database.");
     }
 
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_SuccessCreateNewItem()
     {
         $productData = ["TestProduct", $price = "100", "new", "250"];
@@ -276,7 +279,9 @@ class CartItemTest extends WebTestCase
         $this->assertEquals($productId, $cartItem->getProduct()->getId(), "Cart item associated with incorrect product.");
         $this->assertEquals($itemQuantity, $cartItem->getQuantity(), "Cart item has incorrect quantity");
     }
-
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_SuccessUpdateSamePriceItem()
     {
         $productData = ["TestProduct", $price = "100", "new", "250"];
@@ -309,6 +314,9 @@ class CartItemTest extends WebTestCase
         $this->assertEquals($itemQuantity, $cartItem->getQuantity(), "Cart item has incorrect quantity");
     }
 
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_SuccessCreateSameItemDifferentPriceItem()
     {
         $productData = ["TestProduct", $price = "100", "new", "250"];
@@ -381,6 +389,9 @@ class CartItemTest extends WebTestCase
     {
     }
 */
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_FailCartItemAndSessionItemQuantityTotalExceedsSupply_SamePrice() {
         $productData = ["TestProduct", $price = "100", "new", "250"];
         $itemQuantity = 200;
@@ -409,6 +420,9 @@ class CartItemTest extends WebTestCase
         $this->assertEquals($itemQuantity, $cartItem->getQuantity(), "Cart item has incorrect quantity");
     }
 
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_FailCartItemAndSessionItemQuantityTotalExceedsSupply_DifferentPrice()
     {
         $productData = ["TestProduct", $price = "100", "new", "250"];
@@ -446,6 +460,9 @@ class CartItemTest extends WebTestCase
         $this->assertEquals($itemQuantity, $cartItem->getQuantity(), "Cart item has incorrect quantity");
     }
 
+    /**
+     * @depends testSessionAddCartItem_Success
+     */
     public function testSessionToClientCartTransaction_FailItemProductBelongsToUser()
     {
         $productData = ["TestProduct", $price = "100", "new", "250"];
@@ -562,11 +579,13 @@ class CartItemTest extends WebTestCase
      * @param string $productCount
      * @return array
      */
-    //TODO: Block out self item listing... and update this(logout and login with another user.)
     public function userSetupProductAndItem($productName = "TestProduct", $productPrice = "25", $productStatus = "new", $productCount = "100", $itemQuantity = 50): array
     {
-        $username = $this->loginTestAccount();
+        $this->loginTestAccount();
         $productId = $this->setupProduct([$productName, $productPrice, $productStatus, $productCount]);
+        $this->logout();
+        $username = $this->loginTestAccount(2);
+
         $cartItem = $this->setupUserItem($productId, $username, $itemQuantity);
 
         return array([$productId, $productName, $productPrice, $productStatus, $productCount], $cartItem, $username, $itemQuantity);

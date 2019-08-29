@@ -8,7 +8,6 @@ use App\Entity\CartItem;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Service\Security as ServiceSecurity;
-use http\Exception\InvalidArgumentException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +35,6 @@ class CartController extends AbstractController
         $user = $this->security->getUser();
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $products = null;
-        //TODO: Revert PersistentCollection.
         if ($isUserRegistered) {
             $cart = $user->getCartItems();
         } else {
@@ -64,8 +62,12 @@ class CartController extends AbstractController
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         $quantity = $request->get("quantity");
 
+        if ($user === $product->getOwner()) {
+            throw new \InvalidArgumentException("User cannot buy own product.");
+        }
+
         if ($quantity == 0 || $quantity > $product->getAvailableQuantity()) {
-            throw new \InvalidArgumentException("Item quantity exceeds available product quantity");
+            throw new \InvalidArgumentException("Illegal item quantity given.");
         }
 
         if ($isUserRegistered) {
