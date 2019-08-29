@@ -639,11 +639,7 @@ class CartItemTest extends WebTestCase
         $product = $productRepository->find($productId);
 
         $cartItemRepository = $this->em->getRepository(CartItem::class);
-        $cartItem = $cartItemRepository->findOneBy([
-            "user" => $user,
-            "product" => $product,
-            "price" => $price
-        ]);
+        $cartItem = $cartItemRepository->findItem($user, $product, $price);
         return $cartItem;
     }
 
@@ -664,10 +660,7 @@ class CartItemTest extends WebTestCase
         $product = $productRepository->find($productId);
 
         $cartItemRepository = $this->em->getRepository(CartItem::class);
-        $cartItems = $cartItemRepository->findBy([
-            "user" => $user,
-            "product" => $product
-        ]);
+        $cartItems = $cartItemRepository->findItems($user, $product);
         return $cartItems;
     }
 

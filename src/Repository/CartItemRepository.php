@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\CartItem;
+use App\Entity\Product;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -18,6 +20,25 @@ class CartItemRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CartItem::class);
     }
+
+    public function findItem(User $user, Product $product, $price) {
+        $cartItem = $this->findOneBy([
+            "user" => $user,
+            "product" => $product,
+            "price" => $price
+        ]);
+        return $cartItem;
+    }
+
+    public function findItems(User $user, Product $product) {
+        $cartItems = $this->findBy([
+            "user" => $user,
+            "product" => $product
+        ]);
+        return $cartItems;
+    }
+
+
 
     // /**
     //  * @return CartItem[] Returns an array of CartItem objects

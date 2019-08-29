@@ -9,6 +9,7 @@ use App\Entity\Product;
 use App\Entity\User;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,7 @@ class AuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler i
      */
     private $entityManager;
 
-    public function __construct(HttpUtils $httpUtils, EntityManager $entityManager, array $options = [])
+    public function __construct(HttpUtils $httpUtils, EntityManagerInterface $entityManager, array $options = [])
     {
         parent::__construct($httpUtils, $options);
         $this->entityManager = $entityManager;
