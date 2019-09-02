@@ -10,6 +10,7 @@ use App\Repository\ProductRepository;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\Message;
+use App\Service\Product as ServiceProduct;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,7 @@ class ProductController extends AbstractController
     const PRICE_MAX = 10000;
     const ITEM_PER_PAGE = 10; //Product count per page, used for pagination.
 
+    private $productService;
     private $productRepository;
     private $userRepository;
     /**
@@ -34,8 +36,9 @@ class ProductController extends AbstractController
      */
     private $paginator;
 
-    public function __construct(ProductRepository $productRepository, UserRepository $userRepository, PaginatorInterface $paginator)
+    public function __construct(ServiceProduct $productService, ProductRepository $productRepository, UserRepository $userRepository, PaginatorInterface $paginator)
     {
+        $this->productService = $productService;
         $this->productRepository = $productRepository;
         $this->userRepository = $userRepository;
         $this->paginator = $paginator;
@@ -47,41 +50,10 @@ class ProductController extends AbstractController
     public function index(Request $request)
     {
         $filterParams = $this->getSearchParams($request);
-        $products = $this->productRepository->getSearchResults($filterParams);
+        [$filterDisplayedParams, $sortingTypes, $sortingOrders] = $this->productService->displayLastFilterParams($filterParams);
+        $products = $this->productService->getSearchResults($filterParams);
 
-        [$value, $user, $priceMin, $priceMax, $sortType, $sortOrder] = $filterParams;
-        if (is_null($value))
-            $value = "";
-        if (is_null($user))
-            $user = "";
-        if ($priceMin === 0)
-            $priceMin = "";
-        if ($priceMax === 10000)
-            $priceMax = "";
-        if (is_null($sortType) || strlen($sortType) === 0)
-            $sortType = "date_changed";
-        if (is_null($sortOrder) || strlen($sortOrder) === 0)
-            $sortOrder = "asc";
-
-        $filterDisplayedParams = [
-            "value" => $value,
-            "user" => $user,
-            "priceMin" => $priceMin,
-            "priceMax" => $priceMax,
-            "sortType" => $sortType,
-            "sortOrder" => $sortOrder
-        ];
-
-        $sortingTypes = [
-            "name" => "Name",
-            "price" => "Price",
-            "owner" => "Seller"
-        ];
-
-        $sortingOrders = [
-            "asc" => "Ascending",
-            "desc" => "Descending"
-        ];
+        $users = $this->productService->getUsersSortedByUsername();
 
         $pagination = $this->paginator->paginate(
             $products,
@@ -90,7 +62,7 @@ class ProductController extends AbstractController
 
         return new Response($this->renderView("product/index.html.twig", [
             "pagination" => $pagination,
-            "users" => $this->userRepository->findBy([], ["username" => "ASC"]),
+            "users" => $users,
             "filterData" => $filterDisplayedParams,
             "types" => $sortingTypes,
             "orders" => $sortingOrders
@@ -117,22 +89,20 @@ class ProductController extends AbstractController
             $product = new Product;
             $isNew = true;
         }
+        $user = $this->getUser();
 
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $date = new \DateTime();
+            $this->productService->setupProduct($product, $user, $isNew);
 
-            if ($isNew) {
-                $product->setDateCreated($date);
-                $product->setOwner($this->getUser());
-            }
-            $product->setDateUpdated($date);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($product);
-            $entityManager->flush();
+            $url = $this->generateUrl(
+                "product_product",
+                ["id" => $product->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            $this->productService->sendSetupSMS($url);
 
             $message = "";
             if ($isNew)
@@ -141,16 +111,6 @@ class ProductController extends AbstractController
                 $message = "Your product's information has been successfully updated.";
             $this->addFlash("notice", $message);
 
-            $linkToItem = $this->generateUrl(
-                "product_product",
-                ["id" => $product->getId()],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-
-
-            $smsContent = "You have successfully listed a new product:\n". $linkToItem;
-
-//            Message::sendSMS($smsContent);
             return $this->redirectToRoute("product_product" , ["id" => $product->getId()]);
         }
 

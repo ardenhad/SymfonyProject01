@@ -16,12 +16,25 @@ class Cart
     private $cartItemRepository;
     private $productRepository;
 
-    function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
         $this->cartItemRepository = $entityManager->getRepository(CartItem::class);
         $this->productRepository = $entityManager->getRepository(Product::class);
     }
+
+    public function sortCartByMostRecent($cart)
+    {
+        if (is_array($cart))
+            return array_reverse($cart);
+    }
+
+    public function getProducts() {
+        $productRepository = $this->entityManager->getRepository(Product::class);
+        return $productRepository->findAll();
+    }
+
+
 
     public function addUserCartItem(Product $product, User $user, string $quantity)
     {
@@ -96,4 +109,6 @@ class Cart
         $cart = array_values($cart);
         return $cart;
     }
+
+
 }

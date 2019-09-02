@@ -41,14 +41,10 @@ class CartController extends AbstractController
             $cart = $user->getCartItems();
         } else {
             $cart = ($request->getSession()->get("cart"));
-            if (is_array($cart)) {
-                $cart = array_reverse($cart);
-            }
-            $entityManager = $this->getDoctrine()->getManager();
-            $productRepository = $entityManager->getRepository(Product::class);
-            $products = $productRepository->findAll();
-
+            $cart = $this->cartService->sortCartByMostRecent($cart);
+            $products = $this->cartService->getProducts();
         }
+
         return new Response($this->renderView("cart/cart-view.html.twig", [
             "cart" => $cart,
             "products" => $products
