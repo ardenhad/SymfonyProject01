@@ -99,7 +99,6 @@ class CartController extends AbstractController
         $isUserRegistered = ServiceSecurity::isUserRegistered($user);
         if ($isUserRegistered) {
             //TODO: Decide when price will be updated to new one.. Remove and readd to cart sounds non-friendly.
-            //For registered user, check cart item id.
             $this->cartService->editUserCartItem($id, $quantity);
         } else {
             $cart = $request->getSession()->get("cart");

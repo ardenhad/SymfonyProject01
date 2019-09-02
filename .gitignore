@@ -22,10 +22,6 @@
 /.idea/
 ###< PhpStorm Thingies ###
 
-###> Credential Containing Files ###
-/src/Service/Message.php
-###< Credential Containing Files ###
-
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
